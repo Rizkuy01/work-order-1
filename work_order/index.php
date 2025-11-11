@@ -217,8 +217,6 @@ $result = mysqli_query($conn, $query);
   .pagination .page-item.disabled .page-link {
     color: #aaa; background-color: #f5f5f5; pointer-events: none;
   }
-
-  /* 🌈 Header Card Gradasi Merah (KYB Style) */
   .card-header {
     background: linear-gradient(135deg, #ff4b2b, #ff416c);
     color: white;

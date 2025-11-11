@@ -37,29 +37,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<div class="container-fluid px-4">
-  <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
-    <h4 class="fw-semibold text-primary"><i class="fa-solid fa-calendar-plus me-2"></i> Input Jadwal Work Order</h4>
-    <a href="schedule.php" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-arrow-left me-1"></i> Kembali</a>
-  </div>
-
+<div class="container-fluid px-4 py-3">
+  <!-- 🔴 HEADER + FORM DALAM SATU CARD -->
   <div class="card shadow border-0">
-    <div class="card-header bg-primary text-white fw-semibold">
-      Detail Work Order
+    <div class="card-header text-white fw-semibold d-flex align-items-center justify-content-between"
+         style="background: linear-gradient(90deg, #ff4b2b, #ff416c); font-size: 1.1rem;">
+      <div><i class="fa-solid fa-calendar-plus me-2"></i> Input Jadwal Work Order</div>
+      <a href="schedule.php" class="btn btn-light btn-sm fw-semibold shadow-sm">
+        <i class="fa-solid fa-arrow-left me-1"></i> Kembali
+      </a>
     </div>
-    <div class="card-body p-4">
+
+    <div class="card-body bg-white p-4">
       <form method="POST" class="needs-validation" novalidate>
-        <div class="row mb-3">
+        <!-- DETAIL WORK ORDER -->
+        <div class="row mb-4">
           <div class="col-md-6">
             <label class="form-label">Nama Mesin</label>
-            <input type="text" class="form-control bg-light" value="<?= htmlspecialchars($data['nama_mesin']) ?>" readonly>
+            <input type="text" class="form-control bg-light fw-semibold" 
+                   value="<?= htmlspecialchars($data['nama_mesin']) ?>" readonly>
           </div>
           <div class="col-md-6">
             <label class="form-label">Judul WO</label>
-            <input type="text" class="form-control bg-light" value="<?= htmlspecialchars($data['judul_wo']) ?>" readonly>
+            <input type="text" class="form-control bg-light fw-semibold" 
+                   value="<?= htmlspecialchars($data['judul_wo']) ?>" readonly>
           </div>
         </div>
 
+        <!-- INPUT FORM -->
         <div class="row mb-3">
           <div class="col-md-6">
             <label class="form-label">Tanggal Rencana</label>
@@ -81,9 +86,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <textarea name="note" class="form-control" rows="3" placeholder="Catatan tambahan (opsional)"></textarea>
         </div>
 
+        <!-- BUTTONS -->
         <div class="text-end">
-          <button type="submit" class="btn btn-success px-4 fw-semibold">
-            <i class="fa-solid fa-save me-1"></i> Simpan Jadwal
+          <button type="submit" class="btn btn-success-gradient px-4 fw-semibold me-2">
+            <i class="fa-solid fa-save me-1"></i> Jadwalkan
           </button>
           <a href="schedule.php" class="btn btn-secondary px-4 fw-semibold">
             <i class="fa-solid fa-xmark me-1"></i> Batal
@@ -99,22 +105,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     border-radius: 12px;
     overflow: hidden;
   }
-  .card-header {
-    font-size: 1rem;
-    padding: 0.75rem 1.25rem;
-  }
+
   label {
     font-weight: 600;
   }
+
   input[readonly] {
     color: #555;
-    font-weight: 500;
   }
+
   .form-control {
     border-radius: 8px;
   }
+
   .btn {
     border-radius: 8px;
+  }
+
+  /* 🔴 Gradasi tombol utama */
+  .btn-success-gradient {
+    background: linear-gradient(90deg, #23d23a, #53fc97ff);
+    border: none;
+    color: white;
+  }
+  .btn-success-gradient:hover {
+    background: linear-gradient(90deg, #1bb730, #4cd67f);
+  }
+
+  /* 🔴 Konsistensi sistem */
+  .btn-danger-gradient {
+    background: linear-gradient(90deg, #ff4b2b, #ff416c);
+    border: none;
+  }
+  .btn-danger-gradient:hover {
+    background: linear-gradient(90deg, #ff416c, #c0392b);
+  }
+
+  .card-header .btn-light {
+    background: white;
+    color: #ff4b2b;
+    border: none;
+    transition: 0.3s;
+  }
+  .card-header .btn-light:hover {
+    background: #ffe6e6;
+    color: #ff2b2b;
   }
 </style>
 

@@ -14,6 +14,22 @@ $woProgress      = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS to
 $woChecked       = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM work_order WHERE status='WAITING CHECKED'"))['total'] ?? 0;
 $woFinish        = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM work_order WHERE status='FINISHED'"))['total'] ?? 0;
 $woReject        = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM work_order WHERE status='REJECTED'"))['total'] ?? 0;
+
+// Data untuk Bar Chart - Total WO per Tahun
+$yearData = [];
+$result = mysqli_query($conn, "
+  SELECT YEAR(tgl_input) AS tahun, COUNT(*) AS total
+  FROM work_order
+  GROUP BY YEAR(tgl_input)
+  ORDER BY tahun ASC
+");
+while ($row = mysqli_fetch_assoc($result)) {
+  $yearData[] = $row;
+}
+$years = array_column($yearData, 'tahun');
+$totals = array_column($yearData, 'total');
+
+
 ?>
 
 <?php include '../includes/layout.php'; ?>
@@ -96,7 +112,7 @@ $woReject        = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS to
   <div class="row g-3">
     <div class="col-md-6">
       <div class="chart-card">
-        <h6 class="text-primary fw-semibold mb-3"><i class="bi bi-bar-chart-line me-2"></i>Statistik Work Order</h6>
+        <h6 class="text-primary fw-semibold mb-3"><i class="bi bi-bar-chart-line me-2"></i>Summary Work Order</h6>
         <canvas id="barChart" height="220"></canvas>
       </div>
     </div>
@@ -114,35 +130,17 @@ $woReject        = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS to
 <script src="../assets/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-const labels = [
-  'Waiting Schedule', 
-  'Waiting Approval', 
-  'Opened', 
-  'On Progress', 
-  'Waiting Checked', 
-  'Finished', 
-  'Rejected'
-];
+// 📊 Ambil data WO per tahun dari PHP
+const yearLabels = <?= json_encode($years) ?>; // tahun, misal [2022, 2023, 2024, 2025]
+const yearTotals = <?= json_encode($totals) ?>; // total WO per tahun, misal [10, 24, 33, 15]
 
-const dataWO = [
-  <?= $woWaiting ?>,
-  <?= $woApproval ?>,
-  <?= $woOpened ?>,
-  <?= $woProgress ?>,
-  <?= $woChecked ?>,
-  <?= $woFinish ?>,
-  <?= $woReject ?>
-];
-
-const colors = [
-  '#f1c40f',
-  '#9b59b6',
-  '#7f8c8d',
-  '#e67e22',
-  '#086bffff',
-  '#27ae60',
-  '#e74c3c'
-];
+// 🎨 Warna gradasi untuk bar chart
+function createGradient(ctx, area) {
+  const gradient = ctx.createLinearGradient(0, area.bottom, 0, area.top);
+  gradient.addColorStop(0, '#ff4b2b'); // bawah
+  gradient.addColorStop(1, '#ff416c'); // atas
+  return gradient;
+}
 
 // 🎬 Animasi fade-in sederhana untuk chart container
 document.querySelectorAll('.chart-card').forEach(el => {
@@ -153,18 +151,23 @@ document.querySelectorAll('.chart-card').forEach(el => {
 window.addEventListener('load', () => {
   setTimeout(() => {
     document.querySelectorAll('.chart-card').forEach(el => el.style.opacity = '1');
-  }, 250); // delay 0.25s biar smooth
+  }, 250);
 });
 
-// 📊 Bar Chart
+// 📊 Bar Chart - Total Work Order per Tahun
 new Chart(document.getElementById('barChart'), {
   type: 'bar',
   data: {
-    labels: labels,
+    labels: yearLabels,
     datasets: [{
-      label: 'Jumlah WO',
-      data: dataWO,
-      backgroundColor: colors,
+      label: 'Total Work Order',
+      data: yearTotals,
+      backgroundColor: (context) => {
+        const chart = context.chart;
+        const {ctx, chartArea} = chart;
+        if (!chartArea) return null;
+        return createGradient(ctx, chartArea);
+      },
       borderRadius: 6
     }]
   },
@@ -200,7 +203,38 @@ new Chart(document.getElementById('barChart'), {
   }
 });
 
-// 🍩 Donut Chart
+
+// 🍩 Donut Chart (Tetap Sama)
+const labels = [
+  'Waiting Schedule', 
+  'Waiting Approval', 
+  'Opened', 
+  'On Progress', 
+  'Waiting Checked', 
+  'Finished', 
+  'Rejected'
+];
+
+const dataWO = [
+  <?= $woWaiting ?>,
+  <?= $woApproval ?>,
+  <?= $woOpened ?>,
+  <?= $woProgress ?>,
+  <?= $woChecked ?>,
+  <?= $woFinish ?>,
+  <?= $woReject ?>
+];
+
+const colors = [
+  '#f1c40f',
+  '#9b59b6',
+  '#7f8c8d',
+  '#e67e22',
+  '#086bff',
+  '#27ae60',
+  '#e74c3c'
+];
+
 new Chart(document.getElementById('pieChart'), {
   type: 'doughnut',
   data: {
@@ -243,6 +277,7 @@ new Chart(document.getElementById('pieChart'), {
   }
 });
 </script>
+
 
 </body>
 </html>

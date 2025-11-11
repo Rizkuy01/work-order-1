@@ -54,29 +54,22 @@ $role = $_SESSION['role'] ?? '';
 </ul>
 
 <style>
-  /* === Warna umum ikon sidebar === */
 .sidebar i.bi {
-  color: #333 !important; /* Warna default (gelap) */
+  color: #333 !important; 
   transition: color 0.25s ease-in-out;
 }
-
-/* Saat hover: merah */
 .sidebar a:hover i.bi {
-  color: #c0392b !important; /* Merah KYB */
+  color: #c0392b !important;
 }
-
-/* Saat menu aktif: merah juga */
 .sidebar a.active i.bi {
-  color: #c0392b !important; /* Merah KYB */
+  color: #c0392b !important;
 }
 
-/* Warna teks aktif dan hover */
 .sidebar a.active,
 .sidebar a:hover {
   color: #c0392b !important;
 }
 
-/* (Tambahan agar border kiri aktif juga merah) */
 .sidebar a.active {
   background-color: rgba(192, 57, 43, 0.1);
   border-left: 4px solid #c0392b;
