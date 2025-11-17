@@ -173,7 +173,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $("#section").change(function(){
     $.post("load_line.php", { section: $(this).val() }, function(data){
         $("#line").html(data);
-        $("#mesin").html('<option value="">-- Pilih Line Dulu --</option>');
+        $("#mesin").html('<option value="">-- Pilih Line Terlebih Dahulu --</option>');
     });
 });
 

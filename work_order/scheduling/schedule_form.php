@@ -19,26 +19,48 @@ if (!$data) {
 
 // Simpan jadwal
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
   $plan_date = mysqli_real_escape_string($conn, $_POST['plan_date']);
   $plan_time = mysqli_real_escape_string($conn, $_POST['plan_time']);
+
   $pic       = mysqli_real_escape_string($conn, $_POST['pic']);
+  $pic2      = mysqli_real_escape_string($conn, $_POST['pic2']);
+  $pic3      = mysqli_real_escape_string($conn, $_POST['pic3']);
+
   $note      = mysqli_real_escape_string($conn, $_POST['note']);
   $id_user   = $_SESSION['id_user'];
 
-  $insert = "INSERT INTO wo_schedule (id_work_order, plan_date, plan_time, pic, note, scheduled_by)
-             VALUES ($id, '$plan_date', '$plan_time', '$pic', '$note', $id_user)";
+  // ===================== INSERT KE wo_schedule =====================
+  $insert = "
+    INSERT INTO wo_schedule 
+    (id_work_order, plan_date, plan_time, pic, note, scheduled_by)
+    VALUES 
+    ($id, '$plan_date', '$plan_time', '$pic', '$note', $id_user)
+  ";
 
-  if (mysqli_query($conn, $insert)) {
-    mysqli_query($conn, "UPDATE work_order SET status = 'WAITING APPROVAL' WHERE id_work_order = $id");
-    echo "<script>alert('Jadwal berhasil disimpan!');window.location='schedule.php';</script>";
+  // ===================== UPDATE KE work_order =====================
+  $update = "
+      UPDATE work_order SET
+        tgl_plan = '$plan_date',
+        jam_plan = '$plan_time',
+        pic = '$pic',
+        pic2 = '$pic2',
+        pic3 = '$pic3',
+        note = '$note',
+        person_scheduled = '$id_user',
+        status = 'WAITING APPROVAL'
+      WHERE id_work_order = $id
+  ";
+
+  if (mysqli_query($conn, $insert) && mysqli_query($conn, $update)) {
+      echo "<script>alert('Jadwal berhasil disimpan!');window.location='schedule.php';</script>";
   } else {
-    echo "<div class='alert alert-danger'>Gagal menyimpan jadwal: " . mysqli_error($conn) . "</div>";
+      echo "<div class='alert alert-danger'>Gagal menyimpan jadwal: " . mysqli_error($conn) . "</div>";
   }
 }
 ?>
 
 <div class="container-fluid px-4 py-3">
-  <!-- 🔴 HEADER + FORM DALAM SATU CARD -->
   <div class="card shadow border-0">
     <div class="card-header text-white fw-semibold d-flex align-items-center justify-content-between"
          style="background: linear-gradient(90deg, #ff4b2b, #ff416c); font-size: 1.1rem;">
@@ -50,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <div class="card-body bg-white p-4">
       <form method="POST" class="needs-validation" novalidate>
-        <!-- DETAIL WORK ORDER -->
+
         <div class="row mb-4">
           <div class="col-md-6">
             <label class="form-label">Nama Mesin</label>
@@ -64,7 +86,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           </div>
         </div>
 
-        <!-- INPUT FORM -->
         <div class="row mb-3">
           <div class="col-md-6">
             <label class="form-label">Tanggal Rencana</label>
@@ -76,9 +97,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           </div>
         </div>
 
-        <div class="mb-3">
-          <label class="form-label">PIC (Person in Charge)</label>
-          <input type="text" name="pic" class="form-control" placeholder="Nama petugas / teknisi" required>
+        <!-- PIC 1-2-3 -->
+        <div class="row mb-3">
+          <div class="col-md-4">
+            <label class="form-label">PIC 1</label>
+            <input type="text" name="pic" class="form-control" placeholder="Teknisi 1" required>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">PIC 2</label>
+            <input type="text" name="pic2" class="form-control" placeholder="Teknisi 2 (opsional)">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">PIC 3</label>
+            <input type="text" name="pic3" class="form-control" placeholder="Teknisi 3 (opsional)">
+          </div>
         </div>
 
         <div class="mb-4">
@@ -86,7 +118,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <textarea name="note" class="form-control" rows="3" placeholder="Catatan tambahan (opsional)"></textarea>
         </div>
 
-        <!-- BUTTONS -->
         <div class="text-end">
           <button type="submit" class="btn btn-success-gradient px-4 fw-semibold me-2">
             <i class="fa-solid fa-save me-1"></i> Jadwalkan
@@ -95,62 +126,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <i class="fa-solid fa-xmark me-1"></i> Batal
           </a>
         </div>
+
       </form>
     </div>
   </div>
 </div>
 
 <style>
-  .card {
-    border-radius: 12px;
-    overflow: hidden;
-  }
-
-  label {
-    font-weight: 600;
-  }
-
-  input[readonly] {
-    color: #555;
-  }
-
-  .form-control {
-    border-radius: 8px;
-  }
-
-  .btn {
-    border-radius: 8px;
-  }
-
-  /* 🔴 Gradasi tombol utama */
-  .btn-success-gradient {
-    background: linear-gradient(90deg, #23d23a, #53fc97ff);
-    border: none;
-    color: white;
-  }
-  .btn-success-gradient:hover {
-    background: linear-gradient(90deg, #1bb730, #4cd67f);
-  }
-
-  /* 🔴 Konsistensi sistem */
-  .btn-danger-gradient {
-    background: linear-gradient(90deg, #ff4b2b, #ff416c);
-    border: none;
-  }
-  .btn-danger-gradient:hover {
-    background: linear-gradient(90deg, #ff416c, #c0392b);
-  }
-
-  .card-header .btn-light {
-    background: white;
-    color: #ff4b2b;
-    border: none;
-    transition: 0.3s;
-  }
-  .card-header .btn-light:hover {
-    background: #ffe6e6;
-    color: #ff2b2b;
-  }
+.card { border-radius: 12px; }
+label { font-weight: 600; }
+.form-control { border-radius: 8px; }
+.btn { border-radius: 8px; }
+.btn-success-gradient {
+  background: linear-gradient(90deg, #23d23a, #53fc97);
+  border: none; color: white;
+}
+.btn-success-gradient:hover {
+  background: linear-gradient(90deg, #1bb730, #4cd67f);
+}
 </style>
 
 <?php include '../../includes/footer.php'; ?>
