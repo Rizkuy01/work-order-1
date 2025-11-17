@@ -6,33 +6,38 @@ include '../../config/database.php';
 include '../../includes/layout.php';
 echo '<link rel="stylesheet" href="../../assets/css/bootstrap.min.css">';
 
+// ========== AMBIL DATA SECTION (PROD) ==========
+$q_section = mysqli_query($conn, "SELECT DISTINCT prod FROM mesin ORDER BY prod ASC");
+
+// ========== PROSES SIMPAN ==========
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $creator    = mysqli_real_escape_string($conn, $_SESSION['nama']);
-  $npk        = mysqli_real_escape_string($conn, $_SESSION['nik']);
-  $initiator  = $creator;
-  $section    = mysqli_real_escape_string($conn, $_SESSION['dept']);
-  $tipe       = mysqli_real_escape_string($conn, $_POST['tipe']);
-  $line       = mysqli_real_escape_string($conn, $_POST['line']);
-  $nama_mesin = mysqli_real_escape_string($conn, $_POST['nama_mesin']);
-  $judul_wo   = mysqli_real_escape_string($conn, $_POST['judul_wo']);
-  $detail_wo  = mysqli_real_escape_string($conn, $_POST['detail_wo']);
-  $tgl_temuan = mysqli_real_escape_string($conn, $_POST['tgl_temuan']);
-  $id_user    = $_SESSION['id_user'];
-  $tgl_input  = date('Y-m-d');
-  $status     = 'WAITING SCHEDULE';
 
-  $insert = "
-    INSERT INTO work_order 
-    (creator, npk, initiator, section, tipe, line, nama_mesin, judul_wo, detail_wo, tgl_temuan, fotobefore, status, tgl_input, id_user_input)
-    VALUES 
-    ('$creator', '$npk', '$initiator', '$section', '$tipe', '$line', '$nama_mesin', '$judul_wo', '$detail_wo', '$tgl_temuan', '$status', '$tgl_input', '$id_user')
-  ";
+    $creator    = mysqli_real_escape_string($conn, $_SESSION['nama']);
+    $npk        = mysqli_real_escape_string($conn, $_SESSION['npk']);
+    $initiator  = mysqli_real_escape_string($conn, $_POST['initiator']);
+    $section    = mysqli_real_escape_string($conn, $_POST['section']);
+    $tipe       = mysqli_real_escape_string($conn, $_POST['tipe']);
+    $line       = mysqli_real_escape_string($conn, $_POST['line']);
+    $nama_mesin = mysqli_real_escape_string($conn, $_POST['nama_mesin']);
+    $judul_wo   = mysqli_real_escape_string($conn, $_POST['judul_wo']);
+    $detail_wo  = mysqli_real_escape_string($conn, $_POST['detail_wo']);
+    $tgl_temuan = mysqli_real_escape_string($conn, $_POST['tgl_temuan']);
+    $id_user    = $_SESSION['id_user'];
+    $tgl_input  = date('Y-m-d');
+    $status     = 'WAITING SCHEDULE';
 
-  if (mysqli_query($conn, $insert)) {
-    echo "<script>alert('✅ Work Order berhasil ditambahkan');window.location='../layout.php?page=my_wo';</script>";
-  } else {
-    echo "<div class='alert alert-danger mt-3 text-center'>Gagal menambahkan data: " . mysqli_error($conn) . "</div>";
-  }
+    $insert = "
+        INSERT INTO work_order 
+        (creator, npk, initiator, section, tipe, line, nama_mesin, judul_wo, detail_wo, tgl_temuan, status, tgl_input, id_user_input)
+        VALUES 
+        ('$creator', '$npk', '$initiator', '$section', '$tipe', '$line', '$nama_mesin', '$judul_wo', '$detail_wo', '$tgl_temuan', '$status', '$tgl_input', '$id_user')
+    ";
+
+    if (mysqli_query($conn, $insert)) {
+        echo "<script>alert('✅ Work Order berhasil ditambahkan');window.location='../index.php';</script>";
+    } else {
+        echo "<div class='alert alert-danger mt-3 text-center'>Gagal menambahkan data: " . mysqli_error($conn) . "</div>";
+    }
 }
 ?>
 
@@ -44,9 +49,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <i class="fa-solid fa-plus-circle me-2"></i> Tambah Data Work Order
         </div>
         <div class="card-body p-4">
-          <form method="POST" enctype="multipart/form-data">
-            
-            <!-- Creator, NPK, Initiator, Section -->
+          
+          <form method="POST">
+
+            <!-- CREATOR, NPK -->
             <div class="row mb-3">
               <div class="col-md-6">
                 <label class="form-label text-danger fw-semibold">Creator</label>
@@ -61,15 +67,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="row mb-3">
               <div class="col-md-6">
                 <label class="form-label text-danger fw-semibold">Initiator</label>
-                <input type="text" class="form-control" required>
+                <input type="text" name="initiator" class="form-control" placeholder="Nama pengusul" required>
               </div>
+
               <div class="col-md-6">
                 <label class="form-label text-danger fw-semibold">Section</label>
-                <input type="text" class="form-control bg-body-secondary" value="<?= $_SESSION['dept'] ?>" readonly>
+                <select name="section" id="section" class="form-select" required>
+                  <option value="">-- Pilih Section --</option>
+                  <?php while ($s = mysqli_fetch_assoc($q_section)) : ?>
+                    <option value="<?= $s['prod'] ?>"><?= $s['prod'] ?></option>
+                  <?php endwhile; ?>
+                </select>
               </div>
             </div>
 
-            <!-- Tipe, Line -->
+            <!-- TIPE & LINE -->
             <div class="row mb-3">
               <div class="col-md-6">
                 <label class="form-label text-danger fw-semibold">Tipe Perbaikan</label>
@@ -84,58 +96,88 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                   <option value="Red Tag">Red Tag</option>
                 </select>
               </div>
+
               <div class="col-md-6">
                 <label class="form-label text-danger fw-semibold">Line</label>
-                <input type="text" name="line" class="form-control" required>
+                <select name="line" id="line" class="form-select" required>
+                  <option value="">-- Pilih Section Terlebih Dahulu --</option>
+                </select>
               </div>
             </div>
 
-            <!-- Tanggal Temuan -->
+            <!-- MESIN -->
+            <div class="mb-3">
+              <label class="form-label text-danger fw-semibold">No & Nama Mesin</label>
+              <select name="nama_mesin" id="mesin" class="form-select" required>
+                <option value="">-- Pilih Line Terlebih Dahulu --</option>
+              </select>
+            </div>
+
+            <!-- TANGGAL TEMUAN -->
             <div class="mb-3">
               <label class="form-label text-danger fw-semibold">Tanggal Temuan</label>
               <input type="date" name="tgl_temuan" class="form-control" required>
             </div>
 
-            <!-- Mesin, Judul, Detail -->
-            <div class="mb-3">
-              <label class="form-label text-danger fw-semibold">No & Nama Mesin</label>
-              <select name="nama_mesin" class="form-select" required>
-                <option value="">-- Pilih Mesin --</option>
-                <option value="OC307 - DAMPING FORCE TESTER">OC307 - DAMPING FORCE TESTER</option>
-                <option value="OTC030 - GRAVITY DIE CASTING 33">OTC030 - GRAVITY DIE CASTING 33</option>
-                <option value="OC205 - OIL SEAL PRESS">OC205 - OIL SEAL PRESS</option>
-              </select>
-            </div>
-
+            <!-- JUDUL & DETAIL -->
             <div class="mb-3">
               <label class="form-label text-danger fw-semibold">Judul WO</label>
               <input type="text" name="judul_wo" class="form-control" required>
             </div>
-
             <div class="mb-3">
               <label class="form-label text-danger fw-semibold">Detail WO (Opsional)</label>
               <textarea name="detail_wo" class="form-control" rows="4"></textarea>
             </div>
 
-            <div class="text-end mt-4">
-              <button type="submit" class="btn btn-danger px-4 text-white fw-semibold">
+            <div class="text-end">
+              <button type="submit" class="btn btn-danger px-4 fw-semibold text-white">
                 <i class="fa-solid fa-save me-1"></i> Submit
               </button>
             </div>
 
           </form>
+
         </div>
       </div>
     </div>
   </div>
 </div>
 
+<!-- AJAX UNTUK LINE & MESIN -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function () {
+
+    // ========== LOAD LINE BERDASARKAN SECTION ==========
+    $("#section").change(function () {
+        var section = $(this).val();
+
+        $("#line").html('<option value="">Loading...</option>');
+
+        $.post("load_line.php", { section: section }, function (data) {
+            $("#line").html(data);
+            $("#mesin").html('<option value="">-- Pilih Line Terlebih Dahulu --</option>');
+        });
+    });
+
+    // ========== LOAD MESIN BERDASARKAN LINE ==========
+    $("#line").change(function () {
+        var line = $(this).val();
+
+        $("#mesin").html('<option value="">Loading...</option>');
+
+        $.post("load_mesin.php", { line: line }, function (data) {
+            $("#mesin").html(data);
+        });
+    });
+
+});
+</script>
+
 <style>
   .bg-danger-gradient { background: linear-gradient(135deg, #ff4b2b, #c0392b); }
   .card { border-radius: 12px; }
-  input.form-control, textarea.form-control, select.form-select {
-    border-radius: 8px;
-  }
+  input, textarea, select { border-radius: 8px !important; }
   input:focus, textarea:focus, select:focus {
     border-color: #dc3545;
     box-shadow: 0 0 5px rgba(220,53,69,0.3);

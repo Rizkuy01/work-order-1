@@ -5,81 +5,159 @@ only(['Maintenance', 'Super Administrator']);
 include '../../config/database.php';
 include '../../includes/layout.php';
 
+// ================= GET DATA WORK ORDER ==================
 $id = $_GET['id'] ?? 0;
-$result = mysqli_query($conn, "SELECT * FROM work_order WHERE id_work_order=$id");
-$data = mysqli_fetch_assoc($result);
+$q = mysqli_query($conn, "SELECT * FROM work_order WHERE id_work_order = $id");
+$data = mysqli_fetch_assoc($q);
 
 if (!$data) {
-  echo "<div class='alert alert-danger text-center mt-4'>Data tidak ditemukan.</div>";
-  include '../../includes/footer.php';
-  exit;
+    echo "<div class='alert alert-danger text-center mt-4'>Data tidak ditemukan.</div>";
+    include '../../includes/footer.php';
+    exit;
 }
 
-// Update data
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $judul = mysqli_real_escape_string($conn, $_POST['judul_wo']);
-  $status = mysqli_real_escape_string($conn, $_POST['status']);
+// ================= GET SECTION (FROM MESIN) ==================
+$q_section = mysqli_query($conn, "SELECT DISTINCT prod FROM mesin ORDER BY prod ASC");
 
-  $update = "UPDATE work_order SET judul_wo='$judul', status='$status' WHERE id_work_order=$id";
-  if (mysqli_query($conn, $update)) {
-    echo "<script>
-      alert('✅ Work Order berhasil diperbarui');
-      window.location='../index.php';
-    </script>";
-    exit;
-  } else {
-    echo "<div class='alert alert-danger mt-3 text-center'>
-      Gagal memperbarui data: " . mysqli_error($conn) . "
-    </div>";
-  }
+// ================= UPDATE WORK ORDER ==================
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    $initiator  = mysqli_real_escape_string($conn, $_POST['initiator']);
+    $section    = mysqli_real_escape_string($conn, $_POST['section']);
+    $tipe       = mysqli_real_escape_string($conn, $_POST['tipe']);
+    $line       = mysqli_real_escape_string($conn, $_POST['line']);
+    $nama_mesin = mysqli_real_escape_string($conn, $_POST['nama_mesin']);
+    $judul_wo   = mysqli_real_escape_string($conn, $_POST['judul_wo']);
+    $detail_wo  = mysqli_real_escape_string($conn, $_POST['detail_wo']);
+    $tgl_temuan = mysqli_real_escape_string($conn, $_POST['tgl_temuan']);
+
+    $update = "
+        UPDATE work_order SET 
+        initiator = '$initiator',
+        section = '$section',
+        tipe = '$tipe',
+        line = '$line',
+        nama_mesin = '$nama_mesin',
+        judul_wo = '$judul_wo',
+        detail_wo = '$detail_wo',
+        tgl_temuan = '$tgl_temuan'
+        WHERE id_work_order = $id
+    ";
+
+    if (mysqli_query($conn, $update)) {
+        echo "<script>alert('Data berhasil diperbarui');window.location='../index.php';</script>";
+        exit;
+    } else {
+        echo "<div class='alert alert-danger mt-3 text-center'>
+            Gagal memperbarui data: " . mysqli_error($conn) . "
+        </div>";
+    }
 }
 ?>
 
-<div class="container-fluid px-4">
-  <div class="row justify-content-center mt-4">
+<div class="container-fluid py-4">
+  <div class="row justify-content-center">
     <div class="col-lg-8">
       <div class="card shadow border-0">
-        <div class="card-header bg-primary text-white d-flex align-items-center justify-content-between">
-          <h5 class="mb-0"><i class="fa-solid fa-pen-to-square me-2"></i> Edit Work Order</h5>
-          <a href="../index.php" class="btn btn-light btn-sm">
-            <i class="fa-solid fa-arrow-left me-1"></i> Kembali
-          </a>
+        <div class="card-header bg-danger-gradient text-white fw-semibold">
+          <i class="fa-solid fa-pen-to-square me-2"></i> Edit Work Order
         </div>
 
         <div class="card-body p-4">
-          <form method="POST" id="formEditWO">
+          <form method="POST">
 
-            <div class="mb-3">
-              <label class="form-label fw-semibold"><i class="fa-solid fa-hashtag me-1"></i> Kode Mesin</label>
-              <input type="text" class="form-control" value="<?= htmlspecialchars($data['nama_mesin']) ?>" readonly>
+            <!-- CREATOR + NPK -->
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label text-danger fw-semibold">Creator</label>
+                <input type="text" class="form-control bg-body-secondary"
+                  value="<?= $_SESSION['nama'] ?>" readonly>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label text-danger fw-semibold">NPK</label>
+                <input type="text" class="form-control bg-body-secondary"
+                  value="<?= $_SESSION['npk'] ?>" readonly>
+              </div>
             </div>
 
+            <!-- INITIATOR -->
             <div class="mb-3">
-              <label class="form-label fw-semibold"><i class="fa-solid fa-pen me-1"></i> Judul Work Order</label>
-              <input type="text" name="judul_wo" class="form-control" value="<?= htmlspecialchars($data['judul_wo']) ?>" required>
+              <label class="form-label text-danger fw-semibold">Initiator</label>
+              <input type="text" name="initiator" class="form-control"
+                value="<?= htmlspecialchars($data['initiator']) ?>" required>
             </div>
 
+            <!-- SECTION -->
             <div class="mb-3">
-              <label class="form-label fw-semibold"><i class="fa-solid fa-layer-group me-1"></i> Status Work Order</label>
-              <select name="status" class="form-select" required>
-                <option value="">Pilih Status</option>
-                <option value="WAITING SCHEDULE" <?= $data['status'] == 'WAITING SCHEDULE' ? 'selected' : '' ?>>Waiting Schedule</option>
-                <option value="WAITING APPROVAL" <?= $data['status'] == 'WAITING APPROVAL' ? 'selected' : '' ?>>Waiting Approval</option>
-                <option value="OPENED" <?= $data['status'] == 'OPENED' ? 'selected' : '' ?>>Opened</option>
-                <option value="ON PROGRESS" <?= $data['status'] == 'ON PROGRESS' ? 'selected' : '' ?>>On Progress</option>
-                <option value="WAITING CHECKED" <?= $data['status'] == 'WAITING CHECKED' ? 'selected' : '' ?>>Waiting Checked</option>
-                <option value="FINISHED" <?= $data['status'] == 'FINISHED' ? 'selected' : '' ?>>Finished</option>
-                <option value="REJECTED" <?= $data['status'] == 'REJECTED' ? 'selected' : '' ?>>Rejected</option>
+              <label class="form-label text-danger fw-semibold">Section</label>
+              <select name="section" id="section" class="form-select" required>
+                <option value="">-- Pilih Section --</option>
+                <?php while ($s = mysqli_fetch_assoc($q_section)) : ?>
+                  <option value="<?= $s['prod'] ?>"
+                    <?= ($s['prod'] == $data['section']) ? 'selected' : '' ?>>
+                    <?= $s['prod'] ?>
+                  </option>
+                <?php endwhile; ?>
               </select>
             </div>
 
+            <!-- TIPE & LINE -->
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label text-danger fw-semibold">Tipe Perbaikan</label>
+                <select name="tipe" class="form-select" required>
+                  <option value="Repair" <?= $data['tipe']=='Repair'?'selected':'' ?>>Repair</option>
+                  <option value="Improve" <?= $data['tipe']=='Improve'?'selected':'' ?>>Improve</option>
+                  <option value="Predictive" <?= $data['tipe']=='Predictive'?'selected':'' ?>>Predictive</option>
+                  <option value="Preventive" <?= $data['tipe']=='Preventive'?'selected':'' ?>>Preventive</option>
+                  <option value="DCM" <?= $data['tipe']=='DCM'?'selected':'' ?>>DCM</option>
+                  <option value="Blue Tag" <?= $data['tipe']=='Blue Tag'?'selected':'' ?>>Blue Tag</option>
+                  <option value="Red Tag" <?= $data['tipe']=='Red Tag'?'selected':'' ?>>Red Tag</option>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label text-danger fw-semibold">Line</label>
+                <select name="line" id="line" class="form-select" required>
+                  <option value="<?= $data['line'] ?>"><?= $data['line'] ?></option>
+                </select>
+              </div>
+            </div>
+
+            <!-- MESIN -->
+            <div class="mb-3">
+              <label class="form-label text-danger fw-semibold">No & Nama Mesin</label>
+              <select name="nama_mesin" id="mesin" class="form-select" required>
+                <option value="<?= $data['nama_mesin'] ?>">
+                  <?= $data['nama_mesin'] ?>
+                </option>
+              </select>
+            </div>
+
+            <!-- TGL TEMUAN -->
+            <div class="mb-3">
+              <label class="form-label text-danger fw-semibold">Tanggal Temuan</label>
+              <input type="date" name="tgl_temuan" class="form-control"
+                value="<?= $data['tgl_temuan'] ?>" required>
+            </div>
+
+            <!-- JUDUL & DETAIL -->
+            <div class="mb-3">
+              <label class="form-label text-danger fw-semibold">Judul WO</label>
+              <input type="text" name="judul_wo" class="form-control"
+                value="<?= $data['judul_wo'] ?>" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label text-danger fw-semibold">Detail WO</label>
+              <textarea name="detail_wo" class="form-control" rows="4"><?= $data['detail_wo'] ?></textarea>
+            </div>
+
             <div class="text-end mt-4">
-              <button type="submit" class="btn btn-success px-4">
-                <i class="fa-solid fa-save me-1"></i> Simpan Perubahan
+              <button type="submit" class="btn btn-danger text-white px-4 fw-semibold">
+                <i class="fa-solid fa-save me-1"></i> Simpan
               </button>
-              <a href="../index.php" class="btn btn-secondary px-4">
-                <i class="fa-solid fa-xmark me-1"></i> Batal
-              </a>
             </div>
 
           </form>
@@ -89,33 +167,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   </div>
 </div>
 
+<!-- AJAX LINE & MESIN -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$("#section").change(function(){
+    $.post("load_line.php", { section: $(this).val() }, function(data){
+        $("#line").html(data);
+        $("#mesin").html('<option value="">-- Pilih Line Dulu --</option>');
+    });
+});
+
+$("#line").change(function(){
+    $.post("load_mesin.php", { line: $(this).val() }, function(data){
+        $("#mesin").html(data);
+    });
+});
+</script>
+
 <style>
-  .card {
-    border-radius: 12px;
-  }
-
-  .card-header {
-    border-top-left-radius: 12px;
-    border-top-right-radius: 12px;
-  }
-
-  input, select {
-    border-radius: 8px !important;
-  }
-
-  input:focus, select:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 4px rgba(13, 110, 253, 0.4);
-  }
-
-  .btn-success {
-    background: linear-gradient(90deg, #1db954, #17a64a);
-    border: none;
-  }
-
-  .btn-success:hover {
-    background: linear-gradient(90deg, #17a64a, #138f3e);
-  }
+.bg-danger-gradient { background: linear-gradient(135deg,#ff4b2b,#c0392b); }
+.card { border-radius: 12px; }
+input, textarea, select { border-radius: 8px; }
 </style>
 
 <?php include '../../includes/footer.php'; ?>
