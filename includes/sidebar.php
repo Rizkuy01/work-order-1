@@ -36,6 +36,7 @@ $role = $_SESSION['role'] ?? '';
   <!-- Supervisor -->
   <?php if (in_array($role, ['Supervisor', 'Super Administrator'])): ?>
     <li><a href="<?= $basePath ?>work_order/approval/approval.php" class="<?= $current_page=='approval.php'?'active':'' ?>"><i class="bi bi-check2-circle"></i> Approval</a></li>
+    <li><a href="<?= $basePath ?>work_order/final_check/final_check.php" class="<?= $current_page=='final_check.php'?'active':'' ?>"><i class="bi bi-list-check"></i> Final Checking</a></li>
   <?php endif; ?>
 
   <!-- Monitoring -->

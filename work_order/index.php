@@ -144,12 +144,25 @@ $result = mysqli_query($conn, $query);
                     </span>
                   </td>
                   <td>
-                    <a href="actions/edit.php?id=<?= $row['id_work_order'] ?>" class="btn btn-sm btn-outline-primary me-1">
-                      <i class="bi bi-pencil-square"></i>
-                    </a>
-                    <a href="actions/delete.php?id=<?= $row['id_work_order'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Yakin hapus data ini?')">
-                      <i class="bi bi-trash3"></i>
-                    </a>
+                      <div class="d-flex justify-content-center gap-2">
+
+                          <a href="actions/detail.php?id=<?= $row['id_work_order'] ?>"
+                            class="btn btn-sm btn-outline-primary action-btn" title="Detail">
+                              <i class="bi bi-eye"></i>
+                          </a>
+
+                          <a href="actions/edit.php?id=<?= $row['id_work_order'] ?>"
+                            class="btn btn-sm btn-outline-warning action-btn" title="Edit">
+                              <i class="bi bi-pencil-square"></i>
+                          </a>
+
+                          <a href="actions/delete.php?id=<?= $row['id_work_order'] ?>"
+                            class="btn btn-sm btn-outline-danger action-btn"
+                            onclick="return confirm('Yakin hapus data ini?')" title="Hapus">
+                              <i class="bi bi-trash3"></i>
+                          </a>
+
+                      </div>
                   </td>
                 </tr>
               <?php endwhile; ?>
@@ -271,6 +284,15 @@ $result = mysqli_query($conn, $query);
   .btn-gradient-excel i,
   .btn-gradient-add i {
     margin-right: 6px;
+  }
+  .action-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 !important;
+    border-radius: 8px;
   }
 </style>
 

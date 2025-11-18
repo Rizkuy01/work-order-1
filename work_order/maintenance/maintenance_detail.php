@@ -75,18 +75,94 @@ $badgeStyle = match($status) {
     <form method="POST" action="maintenance_action.php" class="d-inline">
       <input type="hidden" name="id" value="<?= $row['id_work_order'] ?>">
       <?php if ($row['status'] == 'OPENED'): ?>
-        <button type="submit" name="action" value="progress" class="btn btn-warning text-white fw-semibold">
-          <i class="fa-solid fa-play me-1"></i> Mulai
+        <button type="button" class="btn btn-warning text-white fw-semibold" onclick="startWO(<?= $row['id_work_order'] ?>)">
+            <i class="fa-solid fa-play me-1"></i> Mulai
         </button>
       <?php elseif ($row['status'] == 'ON PROGRESS'): ?>
-        <button type="submit" name="action" value="finish" class="btn btn-success text-white fw-semibold">
-          <i class="fa-solid fa-check me-1"></i> Selesai
+        <button type="button" class="btn btn-success text-white fw-semibold" onclick="finishWO(<?= $row['id_work_order'] ?>)">
+            <i class="fa-solid fa-check me-1"></i> Selesai
         </button>
       <?php endif; ?>
     </form>
   </div>
   <?php endif; ?>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  function startWO(id) {
+      Swal.fire({
+          title: 'Mulai Work Order?',
+          text: 'Setelah dimulai, WO akan berpindah ke status ON PROGRESS',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Ya, mulai!',
+          cancelButtonText: 'Batal'
+      }).then((result) => {
+          if (result.isConfirmed) {
+              const form = document.createElement('form');
+              form.method = 'POST';
+              form.action = 'maintenance_action.php';
+
+              form.innerHTML = `
+                  <input type="hidden" name="id" value="${id}">
+                  <input type="hidden" name="action" value="progress">
+              `;
+              
+              document.body.appendChild(form);
+              form.submit();
+          }
+      });
+  }
+
+  function finishWO(idWO) {
+    Swal.fire({
+        title: 'Selesaikan Work Order?',
+        html: `
+            <p class="mb-2">Upload Foto After sebelum menyelesaikan WO:</p>
+            <input type="file" id="fotoAfter" accept="image/*" class="form-control">
+        `,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Selesaikan WO',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#d33',
+        preConfirm: () => {
+
+            const fileInput = document.getElementById('fotoAfter');
+
+            if (!fileInput.files[0]) {
+                Swal.showValidationMessage('Foto after wajib di-upload!');
+                return false;
+            }
+
+            return fileInput.files[0]; 
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+
+            let file = result.value;
+            let formData = new FormData();
+
+            formData.append('id', idWO);
+            formData.append('action', 'finish');
+            formData.append('fotoafter', file);
+
+            fetch('maintenance_action.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(out => {
+                document.write(out); 
+            });
+        }
+    });
+}
+</script>
+
 
 <style>
   .info-item {

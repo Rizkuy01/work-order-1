@@ -7,6 +7,7 @@ $nama = $_SESSION['nama'] ?? '';
 $basePath = '../';
 if (strpos($_SERVER['PHP_SELF'], '/work_order/actions/') !== false ||
     strpos($_SERVER['PHP_SELF'], '/work_order/maintenance/') !== false ||
+    strpos($_SERVER['PHP_SELF'], '/work_order/final_check/') !== false ||
     strpos($_SERVER['PHP_SELF'], '/work_order/approval/') !== false ||
     strpos($_SERVER['PHP_SELF'], '/work_order/check/') !== false ||
     strpos($_SERVER['PHP_SELF'], '/work_order/scheduling/') !== false) {

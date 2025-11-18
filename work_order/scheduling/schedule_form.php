@@ -53,9 +53,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   ";
 
   if (mysqli_query($conn, $insert) && mysqli_query($conn, $update)) {
-      echo "<script>alert('Jadwal berhasil disimpan!');window.location='schedule.php';</script>";
+
+      echo "
+      <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+      <script>
+          Swal.fire({
+              icon: 'success',
+              title: 'Berhasil!',
+              html: 'Work Order telah dijadwalkan! Tunggu persetujuan dari Supervisor.',
+              confirmButtonColor: '#28a745',
+              confirmButtonText: 'OK'
+          }).then(() => {
+              window.location = 'schedule.php';
+          });
+      </script>
+      ";
+
   } else {
-      echo "<div class='alert alert-danger'>Gagal menyimpan jadwal: " . mysqli_error($conn) . "</div>";
+
+      $error = mysqli_error($conn);
+
+      echo "
+      <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+      <script>
+          Swal.fire({
+              icon: 'error',
+              title: 'Gagal!',
+              html: 'Terjadi kesalahan:<br><b>$error</b>',
+              confirmButtonColor: '#d33',
+              confirmButtonText: 'OK'
+          }).then(() => {
+              window.location = 'schedule.php';
+          });
+      </script>
+      ";
   }
 }
 ?>

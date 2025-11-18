@@ -26,17 +26,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tgl_input  = date('Y-m-d');
     $status     = 'WAITING SCHEDULE';
 
+    // proses upload foto before
+    $fotobefore = "";
+    if (!empty($_FILES['fotobefore']['name'])) {
+        $filename =  "AFTER_" . time() . "_" . basename($_FILES['fotobefore']['name']);
+        $target_path = "../../uploads/before/" . $filename;
+
+        // Buat folder jika belum ada
+        if (!file_exists("../../uploads/before")) {
+            mkdir("../../uploads/before", 0777, true);
+        }
+
+        if (move_uploaded_file($_FILES['fotobefore']['tmp_name'], $target_path)) {
+            $fotobefore = $filename;
+        }
+    }
+
+    // insert ke database
     $insert = "
         INSERT INTO work_order 
-        (creator, npk, initiator, section, tipe, line, nama_mesin, judul_wo, detail_wo, tgl_temuan, status, tgl_input, id_user_input)
+        (creator, npk, initiator, section, tipe, line, nama_mesin, judul_wo, detail_wo, 
+         tgl_temuan, fotobefore, status, tgl_input, id_user_input)
         VALUES 
-        ('$creator', '$npk', '$initiator', '$section', '$tipe', '$line', '$nama_mesin', '$judul_wo', '$detail_wo', '$tgl_temuan', '$status', '$tgl_input', '$id_user')
+        ('$creator', '$npk', '$initiator', '$section', '$tipe', '$line', '$nama_mesin', 
+         '$judul_wo', '$detail_wo', '$tgl_temuan', '$fotobefore', '$status', '$tgl_input', '$id_user')
     ";
 
     if (mysqli_query($conn, $insert)) {
-        echo "<script>alert('✅ Work Order berhasil ditambahkan');window.location='../index.php';</script>";
+        echo "
+        <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Work Order berhasil ditambahkan!',
+                text: 'Data sudah masuk ke sistem. Mohon tunggu proses selanjutnya.',
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                window.location = '../index.php';
+            });
+        </script>
+        ";
+        exit;
     } else {
-        echo "<div class='alert alert-danger mt-3 text-center'>Gagal menambahkan data: " . mysqli_error($conn) . "</div>";
+        echo "
+        <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal Menambahkan!',
+                text: '".mysqli_real_escape_string($conn, mysqli_error($conn))."',
+            });
+        </script>
+        ";
     }
 }
 ?>
@@ -50,7 +92,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         <div class="card-body p-4">
           
-          <form method="POST">
+          <!-- WAJIB ADA UNTUK UPLOAD -->
+          <form method="POST" enctype="multipart/form-data">
 
             <!-- CREATOR, NPK -->
             <div class="row mb-3">
@@ -113,6 +156,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               </select>
             </div>
 
+            <!-- FOTO BEFORE -->
+            <div class="mb-3">
+              <label class="form-label text-danger fw-semibold">Foto Before</label>
+              <input type="file" name="fotobefore" class="form-control" accept="image/*">
+              <small class="text-muted">Opsional — upload kondisi awal mesin</small>
+            </div>
+
             <!-- TANGGAL TEMUAN -->
             <div class="mb-3">
               <label class="form-label text-danger fw-semibold">Tanggal Temuan</label>
@@ -148,10 +198,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <script>
 $(document).ready(function () {
 
-    // ========== LOAD LINE BERDASARKAN SECTION ==========
     $("#section").change(function () {
         var section = $(this).val();
-
         $("#line").html('<option value="">Loading...</option>');
 
         $.post("load_line.php", { section: section }, function (data) {
@@ -160,10 +208,8 @@ $(document).ready(function () {
         });
     });
 
-    // ========== LOAD MESIN BERDASARKAN LINE ==========
     $("#line").change(function () {
         var line = $(this).val();
-
         $("#mesin").html('<option value="">Loading...</option>');
 
         $.post("load_mesin.php", { line: line }, function (data) {

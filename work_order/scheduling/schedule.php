@@ -92,7 +92,7 @@ $result = mysqli_query($conn, $query);
                   <td>
                     <a href="schedule_form.php?id=<?= $row['id_work_order'] ?>" 
                        class="btn btn-danger-gradient btn-sm fw-semibold text-white shadow-sm">
-                      <i class="fa-solid fa-calendar-plus me-1"></i> Buat Jadwal
+                      <i class="fa-solid fa-calendar-plus me-1"></i> Jadwalkan
                     </a>
                   </td>
                 </tr>

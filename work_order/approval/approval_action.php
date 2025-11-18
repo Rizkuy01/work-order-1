@@ -2,46 +2,44 @@
 include '../../includes/session_check.php';
 include '../../includes/role_check.php';
 only(['Supervisor', 'Super Administrator']);
-
 include '../../config/database.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $id        = $_POST['id'] ?? 0;
-    $action    = $_POST['action'] ?? '';
+
+    $id        = $_POST['id'];
+    $action    = $_POST['action'];
     $nama_user = mysqli_real_escape_string($conn, $_SESSION['nama']);
 
-    if (!$id || !$action) {
-        die("Invalid request");
-    }
-
     if ($action === 'approve') {
-
-        $query = "
-            UPDATE work_order 
-            SET status = 'OPENED',
-                person_approved = '$nama_user'
-            WHERE id_work_order = $id
-        ";
-
-    } elseif ($action === 'reject') {
-
-        $query = "
-            UPDATE work_order 
-            SET status = 'REJECTED'
-            WHERE id_work_order = $id
-        ";
-
+        $query = "UPDATE work_order SET status='OPENED', person_approved='$nama_user' WHERE id_work_order=$id";
+        $msg   = "Work Order berhasil <b>APPROVED</b>";
     } else {
-        die("Invalid action");
+        $query = "UPDATE work_order SET status='REJECTED' WHERE id_work_order=$id";
+        $msg   = "Work Order telah <b>REJECTED</b>";
     }
 
-    if (mysqli_query($conn, $query)) {
-        echo "<script>
-            alert('Work Order berhasil diupdate menjadi $action');
-            window.location='approval.php';
-        </script>";
-    } else {
-        echo "<div class='alert alert-danger'>Gagal update: " . mysqli_error($conn) . "</div>";
-    }
+    mysqli_query($conn, $query);
 }
 ?>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+
+<script>
+Swal.fire({
+    icon: 'success',
+    title: 'Berhasil!',
+    html: '<?= $msg ?>',
+    confirmButtonColor: '#28a745',
+    confirmButtonText: 'OK'
+}).then(() => {
+    window.location = 'approval.php';
+});
+</script>
+
+</body>
+</html>
