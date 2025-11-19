@@ -174,6 +174,7 @@ $badgeStyle = match ($status) {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
 function approveWO(id){
@@ -186,22 +187,48 @@ function approveWO(id){
         confirmButtonColor:'#27ae60'
     }).then((r)=>{
         if(r.isConfirmed){
-            window.location='final_check_process.php?action=finish&id='+id;
+            $.post("final_check_action.php", {id:id, action:"approve"}, function(res){
+                Swal.fire({icon:"success", html:res.message}).then(()=>{
+                    window.location="final_check.php";
+                });
+            }, "json");
         }
     });
 }
 function rejectWO(id){
     Swal.fire({
         icon:'warning',
-        title:'Tolak WO?',
+        title:'Tolak Work Order',
         input:'text',
-        inputPlaceholder:'Alasan penolakan...',
-    showCancelButton:true,
-    confirmButtonText:'Tolak',
-    confirmButtonColor:'#e74c3c'
+        inputPlaceholder:'Masukkan alasan penolakan...',
+        showCancelButton:true,
+        confirmButtonText:'Tolak',
+        confirmButtonColor:'#e74c3c'
     }).then((r)=>{
         if(r.isConfirmed){
-            window.location='final_check_process.php?action=reject&id='+id+'&note='+r.value;
+
+            $.ajax({
+                url: "final_check_action.php",
+                type: "POST",
+                data: {
+                    id: id,
+                    action: "reject",
+                    reject_note: r.value
+                },
+                dataType: "json",
+                success: function(res){
+                    Swal.fire({
+                        icon: res.status,
+                        html: res.message
+                    }).then(()=>{
+                        window.location = "final_check.php";
+                    });
+                },
+                error: function(xhr){
+                    Swal.fire("Error!", xhr.responseText, "error");
+                }
+            });
+
         }
     });
 }

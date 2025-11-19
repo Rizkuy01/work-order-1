@@ -40,7 +40,7 @@ $role = $_SESSION['role'] ?? '';
   <?php endif; ?>
 
   <!-- Monitoring -->
-  <!-- <?php if (in_array($role, ['Ka. Dept', 'Super Administrator'])): ?>
+  <!-- <?php if (in_array($role, ['Kepala Departemen', 'Super Administrator'])): ?>
     <li><a href="<?= $basePath ?>work_order/monitoring.php" class="<?= $current_page=='monitoring.php'?'active':'' ?>"><i class="bi bi-graph-up"></i> Monitoring</a></li>
   <?php endif; ?> -->
 
@@ -48,11 +48,33 @@ $role = $_SESSION['role'] ?? '';
 
   <!-- Logout -->
   <li>
-    <a href="<?= $basePath ?>auth/logout.php" class="text-danger">
-      <i class="bi bi-box-arrow-right"></i> Logout
+    <a href="#" onclick="confirmLogout()" class="logout-button">
+        <i class="bi bi-box-arrow-right"></i> Logout
     </a>
   </li>
 </ul>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+function confirmLogout() {
+    Swal.fire({
+        title: 'Yakin Logout?',
+        text: "Anda akan keluar dari sistem.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Logout',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = "/work-order/auth/logout.php";
+        }
+    });
+}
+</script>
+
 
 <style>
 .sidebar i.bi {
