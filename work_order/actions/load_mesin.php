@@ -6,18 +6,17 @@ if (!isset($_POST['line']) || $_POST['line'] == '') {
     exit;
 }
 
-$line = mysqli_real_escape_string($conn, $_POST['line']);
+$line = mysqli_real_escape_string($conn_breakdown, $_POST['line']);
 
-$query = mysqli_query($conn, "
+$query = mysqli_query($conn_breakdown, "
     SELECT machine 
     FROM mesin 
     WHERE linename = '$line'
     ORDER BY machine ASC
 ");
 
-echo '<option value="">-- Pilih Mesin --</option>';
-
 while ($row = mysqli_fetch_assoc($query)) {
-    echo '<option value="' . $row['machine'] . '">' . $row['machine'] . '</option>';
+    echo '<option value="' . $row['machine'] . '">' . $row['machine'] . "</option>";
 }
+
 ?>

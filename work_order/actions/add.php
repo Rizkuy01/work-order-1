@@ -7,7 +7,8 @@ include '../../includes/layout.php';
 echo '<link rel="stylesheet" href="../../assets/css/bootstrap.min.css">';
 
 // ========== AMBIL DATA SECTION (PROD) ==========
-$q_section = mysqli_query($conn, "SELECT DISTINCT prod FROM mesin ORDER BY prod ASC");
+$q_section = mysqli_query($conn_breakdown, "SELECT DISTINCT prod FROM mesin ORDER BY prod ASC");
+
 
 // ========== PROSES SIMPAN ==========
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
