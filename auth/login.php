@@ -1,46 +1,79 @@
 <?php
 session_start();
-include '../config/database.php';
+include '../config/database.php'; // sudah ada koneksi: $conn_lembur
 
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $npk = mysqli_real_escape_string($conn, $_POST['npk']);
-    $password = $_POST['password'];
-    $captcha = $_POST['captcha'];
 
+    $npk     = mysqli_real_escape_string($conn_lembur, $_POST['npk']);
+    $password = $_POST['password'];
+    $captcha  = $_POST['captcha'];
+
+    // Cek captcha
     if ($captcha !== ($_SESSION['captcha_text'] ?? '')) {
         $error = "Captcha salah!";
     } else {
-        $query = "SELECT u.*, r.nama_role, r.judul_role 
-                  FROM user u 
-                  LEFT JOIN role r ON u.id_role = r.id_role
-                  WHERE u.npk = '$npk' AND (u.status = 1 OR u.status IS NULL) AND (u.verified = 1 OR u.verified IS NULL)
-                  LIMIT 1";
-        $result = mysqli_query($conn, $query);
 
-        if ($result && mysqli_num_rows($result) > 0) {
+        // Ambil data user dari database lembur1 -> ct_users
+        $q = "
+            SELECT *
+            FROM ct_users
+            WHERE npk = '$npk'
+            LIMIT 1
+        ";
+        $result = mysqli_query($conn_lembur, $q);
+
+        if ($result && mysqli_num_rows($result) === 1) {
+
             $user = mysqli_fetch_assoc($result);
-            if (password_verify($password, $user['password'])) {
-                $_SESSION['id_user']  = $user['id_user'];
-                $_SESSION['nama']     = $user['nama'];
-                $_SESSION['npk']      = $user['npk'];
-                $_SESSION['role']     = $user['judul_role'];
-                $_SESSION['id_role']  = $user['id_role'];
-                $_SESSION['section']  = $user['section'] ?? '-';
 
-                unset($_SESSION['captcha_text']); 
+            // Verifikasi password (kolom = pwd)
+            if (password_verify($password, $user['pwd'])) {
+
+                // ==========================
+                // MAPPING ROLE BERDASARKAN GOLONGAN & ACTING
+                // ==========================
+                $role = 'Operator';
+
+                if ($user['golongan'] == 1 || $user['golongan'] == 2) {
+                    $role = 'Maintenance';
+                } 
+                elseif ($user['golongan'] == 3) {
+                    $role = 'Foreman';
+                } 
+                elseif ($user['golongan'] == 4 && $user['acting'] == 2) {
+                    $role = 'Supervisor';
+                }
+                elseif ($user['golongan'] == 4 && $user['acting'] == 1) {
+                    $role = 'Super Administrator';
+                }
+
+                // =====================
+                // Simpan session
+                // =====================
+                $_SESSION['npk']      = $user['npk'];
+                $_SESSION['nama']     = $user['full_name'];
+                $_SESSION['role']     = $role;
+                $_SESSION['dept']     = $user['dept'];
+                $_SESSION['section']  = $user['sect'];  
+
+                unset($_SESSION['captcha_text']);
+
                 header("Location: ../work_order/dashboard.php");
                 exit;
+
             } else {
                 $error = "Password salah!";
             }
+
         } else {
-            $error = "User tidak ditemukan atau belum aktif.";
+            $error = "NPK tidak ditemukan!";
         }
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>

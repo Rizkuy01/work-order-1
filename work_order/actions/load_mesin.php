@@ -15,6 +15,9 @@ $query = mysqli_query($conn_breakdown, "
     ORDER BY machine ASC
 ");
 
+// Default option
+echo '<option value="">-- Pilih Mesin --</option>';
+
 while ($row = mysqli_fetch_assoc($query)) {
     echo '<option value="' . $row['machine'] . '">' . $row['machine'] . "</option>";
 }

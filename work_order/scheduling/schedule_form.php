@@ -6,7 +6,7 @@ only(['Foreman', 'Super Administrator']);
 include '../../includes/layout.php';
 include '../../config/database.php';
 
-// Ambil ID WO
+// ======== AMBIL DATA WO BY ID ========
 $id = $_GET['id'] ?? 0;
 $result = mysqli_query($conn, "SELECT * FROM work_order WHERE id_work_order = $id");
 $data = mysqli_fetch_assoc($result);
@@ -17,20 +17,28 @@ if (!$data) {
   exit;
 }
 
-// Simpan jadwal
+// ======== AMBIL TEKNISI DARI DB LEMBUR1 ========
+$teknisiQuery = "
+  SELECT full_name 
+  FROM ct_users 
+  WHERE dept IN ('PE2W','PE4W')
+    AND golongan IN (1, 2)
+  ORDER BY full_name ASC
+";
+$teknisi = mysqli_query($conn_lembur, $teknisiQuery);
+
+// ========= SIMPAN JADWAL =========
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   $plan_date = mysqli_real_escape_string($conn, $_POST['plan_date']);
   $plan_time = mysqli_real_escape_string($conn, $_POST['plan_time']);
-
   $pic       = mysqli_real_escape_string($conn, $_POST['pic']);
   $pic2      = mysqli_real_escape_string($conn, $_POST['pic2']);
   $pic3      = mysqli_real_escape_string($conn, $_POST['pic3']);
-
   $note      = mysqli_real_escape_string($conn, $_POST['note']);
   $id_user   = $_SESSION['id_user'];
 
-  // ===================== INSERT KE wo_schedule =====================
+  // INSERT KE TABEL wo_schedule
   $insert = "
     INSERT INTO wo_schedule 
     (id_work_order, plan_date, plan_time, pic, note, scheduled_by)
@@ -38,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ($id, '$plan_date', '$plan_time', '$pic', '$note', $id_user)
   ";
 
-  // ===================== UPDATE KE work_order =====================
+  // UPDATE KE TABEL work_order
   $update = "
       UPDATE work_order SET
         tgl_plan = '$plan_date',
@@ -66,13 +74,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           }).then(() => {
               window.location = 'schedule.php';
           });
-      </script>
-      ";
+      </script>";
+      exit;
 
   } else {
-
       $error = mysqli_error($conn);
-
       echo "
       <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
       <script>
@@ -80,13 +86,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               icon: 'error',
               title: 'Gagal!',
               html: 'Terjadi kesalahan:<br><b>$error</b>',
-              confirmButtonColor: '#d33',
-              confirmButtonText: 'OK'
+              confirmButtonColor: '#d33'
           }).then(() => {
               window.location = 'schedule.php';
           });
-      </script>
-      ";
+      </script>";
+      exit;
   }
 }
 ?>
@@ -102,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <div class="card-body bg-white p-4">
-      <form method="POST" class="needs-validation" novalidate>
+      <form method="POST">
 
         <div class="row mb-4">
           <div class="col-md-6">
@@ -128,25 +133,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           </div>
         </div>
 
-        <!-- PIC 1-2-3 -->
+        <!-- PIC 1-2-3 DROPDOWN -->
         <div class="row mb-3">
+
+          <!-- PIC 1 -->
           <div class="col-md-4">
             <label class="form-label">PIC 1</label>
-            <input type="text" name="pic" class="form-control" placeholder="Teknisi 1" required>
+            <select name="pic" id="pic1" class="form-select" required>
+              <option value="">-- Pilih PIC 1 --</option>
+              <?php
+                $list = mysqli_query($conn_lembur, $teknisiQuery);
+                while ($t = mysqli_fetch_assoc($list)):
+              ?>
+                <option value="<?= $t['full_name'] ?>"><?= $t['full_name'] ?></option>
+              <?php endwhile; ?>
+            </select>
           </div>
+
+          <!-- PIC 2 -->
           <div class="col-md-4">
             <label class="form-label">PIC 2</label>
-            <input type="text" name="pic2" class="form-control" placeholder="Teknisi 2 (opsional)">
+            <select name="pic2" id="pic2" class="form-select">
+              <option value="">-- Pilih PIC 2 --</option>
+              <?php
+                $list = mysqli_query($conn_lembur, $teknisiQuery);
+                while ($t = mysqli_fetch_assoc($list)):
+              ?>
+                <option value="<?= $t['full_name'] ?>"><?= $t['full_name'] ?></option>
+              <?php endwhile; ?>
+            </select>
           </div>
+
+          <!-- PIC 3 -->
           <div class="col-md-4">
             <label class="form-label">PIC 3</label>
-            <input type="text" name="pic3" class="form-control" placeholder="Teknisi 3 (opsional)">
+            <select name="pic3" id="pic3" class="form-select">
+              <option value="">-- Pilih PIC 3 --</option>
+              <?php
+                $list = mysqli_query($conn_lembur, $teknisiQuery);
+                while ($t = mysqli_fetch_assoc($list)):
+              ?>
+                <option value="<?= $t['full_name'] ?>"><?= $t['full_name'] ?></option>
+              <?php endwhile; ?>
+            </select>
           </div>
+
         </div>
 
         <div class="mb-4">
           <label class="form-label">Catatan</label>
-          <textarea name="note" class="form-control" rows="3" placeholder="Catatan tambahan (opsional)"></textarea>
+          <textarea name="note" class="form-control" rows="3"></textarea>
         </div>
 
         <div class="text-end">
@@ -163,14 +199,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   </div>
 </div>
 
+<!-- HILANGKAN NAMA DI DROPDOWN BERIKUTNYA -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+function refreshPIC() {
+    let p1 = $("#pic1").val();
+    let p2 = $("#pic2").val();
+
+    $("#pic2 option, #pic3 option").show();
+
+    if (p1) {
+        $("#pic2 option[value='"+p1+"']").hide();
+        $("#pic3 option[value='"+p1+"']").hide();
+    }
+    if (p2) {
+        $("#pic3 option[value='"+p2+"']").hide();
+    }
+}
+
+$("#pic1, #pic2").change(function(){
+    refreshPIC();
+});
+
+refreshPIC();
+</script>
+
 <style>
 .card { border-radius: 12px; }
 label { font-weight: 600; }
-.form-control { border-radius: 8px; }
-.btn { border-radius: 8px; }
+.form-control, .form-select { border-radius: 8px; }
 .btn-success-gradient {
   background: linear-gradient(90deg, #23d23a, #53fc97);
-  border: none; color: white;
+  border: none;
+  color:white;
 }
 .btn-success-gradient:hover {
   background: linear-gradient(90deg, #1bb730, #4cd67f);
