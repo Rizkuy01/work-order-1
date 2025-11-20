@@ -1,21 +1,25 @@
 <?php
 session_start();
-include '../config/database.php'; // sudah ada koneksi: $conn_lembur
+include '../config/database.php'; // ada: $conn_lembur, $conn_isd, $conn(work_order)
 
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $npk     = mysqli_real_escape_string($conn_lembur, $_POST['npk']);
+    $npk      = mysqli_real_escape_string($conn_lembur, $_POST['npk']);
     $password = $_POST['password'];
     $captcha  = $_POST['captcha'];
 
-    // Cek captcha
+    // ============================
+    // CEK CAPTCHA
+    // ============================
     if ($captcha !== ($_SESSION['captcha_text'] ?? '')) {
         $error = "Captcha salah!";
     } else {
 
-        // Ambil data user dari database lembur1 -> ct_users
+        // ============================
+        // GET USER DARI ct_users (DB lembur1)
+        // ============================
         $q = "
             SELECT *
             FROM ct_users
@@ -28,39 +32,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $user = mysqli_fetch_assoc($result);
 
-            // Verifikasi password (kolom = pwd)
+            // ============================
+            // VERIFIKASI PASSWORD (kolom = pwd)
+            // ============================
             if (password_verify($password, $user['pwd'])) {
 
-                // ==========================
-                // MAPPING ROLE BERDASARKAN GOLONGAN & ACTING
-                // ==========================
-                $role = 'Operator';
+                // ============================
+                // MAPPING ROLE
+                // ============================
+                $role = "Operator";
 
                 if ($user['golongan'] == 1 || $user['golongan'] == 2) {
-                    $role = 'Maintenance';
-                } 
+                    $role = "Maintenance";
+                }
                 elseif ($user['golongan'] == 3) {
-                    $role = 'Foreman';
-                } 
+                    $role = "Foreman";
+                }
                 elseif ($user['golongan'] == 4 && $user['acting'] == 2) {
-                    $role = 'Supervisor';
+                    $role = "Supervisor";
                 }
                 elseif ($user['golongan'] == 4 && $user['acting'] == 1) {
-                    $role = 'Super Administrator';
+                    $role = "Super Administrator";
                 }
 
-                // =====================
-                // Simpan session
-                // =====================
-                $_SESSION['npk']      = $user['npk'];
-                $_SESSION['nama']     = $user['full_name'];
-                $_SESSION['role']     = $role;
-                $_SESSION['dept']     = $user['dept'];
-                $_SESSION['section']  = $user['sect'];  
+                // ============================
+                // SAVE SESSION SEMENTARA (OTP BELUM VERIFIED)
+                // ============================
+                $_SESSION['pending_npk']     = $user['npk'];
+                $_SESSION['pending_nama']    = $user['full_name'];
+                $_SESSION['pending_role']    = $role;
+                $_SESSION['pending_dept']    = $user['dept'];
+                $_SESSION['pending_section'] = $user['sect'];
 
                 unset($_SESSION['captcha_text']);
 
-                header("Location: ../work_order/dashboard.php");
+                // ============================
+                // LANJUTKAN KE OTP
+                // ============================
+                header("Location: proses_otp.php");
                 exit;
 
             } else {

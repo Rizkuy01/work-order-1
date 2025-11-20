@@ -16,4 +16,10 @@ $conn_lembur = mysqli_connect('localhost', 'root', '', 'lembur1');
 if (!$conn_lembur) {
     die("Koneksi lembur gagal: " . mysqli_connect_error());
 }
+
+// ====== Koneksi Database ISD ======
+$conn_isd = mysqli_connect('localhost', 'root', '', 'isd');
+if (!$conn_isd) {
+    die("Koneksi isd gagal: " . mysqli_connect_error());
+}
 ?>
