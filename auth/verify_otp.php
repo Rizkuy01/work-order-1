@@ -10,6 +10,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $npk = $_POST['npk'];
 $otp = $_POST['otp_full'];
 
+// Default OTP untuk testing
+$default_otp = '123456';
+
 // ambil otp terbaru
 $q = mysqli_query($conn, "
     SELECT * FROM otp 
@@ -19,20 +22,32 @@ $q = mysqli_query($conn, "
 
 $data = mysqli_fetch_assoc($q);
 
-if (!$data) {
-    echo "<script>alert('OTP tidak ditemukan.'); window.location='login.php';</script>";
-    exit;
+// Validasi OTP - bisa menggunakan OTP dari DB atau default 123456
+$is_valid = false;
+$is_expired = false;
+
+if ($otp == $default_otp) {
+    // OTP default selalu valid
+    $is_valid = true;
+} elseif ($data) {
+    // Validasi dengan OTP dari DB
+    if ($otp == $data['kode_otp']) {
+        // Cek apakah OTP sudah expired
+        if (strtotime($data['expired_at']) >= time()) {
+            $is_valid = true;
+        } else {
+            $is_expired = true;
+        }
+    }
 }
 
-// Validasi OTP
-if ($otp != $data['kode_otp']) {
-    echo "<script>alert('OTP SALAH!'); history.back();</script>";
-    exit;
-}
-
-// Validasi expired
-if (strtotime($data['expired_at']) < time()) {
-    echo "<script>alert('OTP sudah kadaluarsa!'); window.location='login.php';</script>";
+// Jika OTP tidak valid, tampilkan pesan error yang sesuai
+if (!$is_valid) {
+    if ($is_expired) {
+        echo "<script>alert('OTP sudah kadaluarsa!'); window.location='login.php';</script>";
+    } else {
+        echo "<script>alert('OTP SALAH!'); history.back();</script>";
+    }
     exit;
 }
 

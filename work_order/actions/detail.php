@@ -1,6 +1,7 @@
 <?php
 include '../../includes/session_check.php';
 include '../../config/database.php';
+include '../../config/upload_config.php';
 include '../../includes/layout.php';
 
 $id = $_GET['id'] ?? 0;
@@ -131,14 +132,14 @@ $badgeStyle = match($status) {
             <div class="row text-center">
                 <div class="col-md-6">
                     <h6 class="fw-bold text-danger">Foto Before</h6>
-                    <img src="../../uploads/before/<?= safe($data['fotobefore']) ?>"
+                    <img src="<?= UPLOADS_BEFORE_URL ?><?= safe($data['fotobefore']) ?>"
                         class="img-fluid rounded shadow zoom-img"
                         onclick="zoomImage(this.src)">
                 </div>
 
                 <div class="col-md-6">
                     <h6 class="fw-bold text-success">Foto After</h6>
-                    <img src="../../uploads/after/<?= safe($data['fotoafter']) ?>"
+                    <img src="<?= UPLOADS_AFTER_URL ?><?= safe($data['fotoafter']) ?>"
                         class="img-fluid rounded shadow zoom-img"
                         onclick="zoomImage(this.src)">
                 </div>

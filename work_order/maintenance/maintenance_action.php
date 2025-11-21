@@ -3,6 +3,7 @@ include '../../includes/session_check.php';
 include '../../includes/role_check.php';
 only(['Maintenance', 'Super Administrator']);
 include '../../config/database.php';
+include '../../config/upload_config.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -34,13 +35,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $fotoName = null;
 
         if (!empty($_FILES['fotoafter']['name'])) {
+            ensureUploadDirs();
             $ext = pathinfo($_FILES['fotoafter']['name'], PATHINFO_EXTENSION);
             $fotoName = "AFTER_" . time() . "_" . rand(1000,9999) . "." . $ext;
 
-            // pastikan folder uploads/after sudah ada
             move_uploaded_file(
                 $_FILES['fotoafter']['tmp_name'],
-                "../../uploads/after/" . $fotoName
+                UPLOADS_AFTER_DIR . $fotoName
             );
         }
 

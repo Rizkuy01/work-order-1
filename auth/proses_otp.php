@@ -92,43 +92,34 @@ mysqli_query($conn, "
 <body>
 
 <div class="otp-container">
-  <div class="otp-card">
+    <div class="otp-card">
+        <img src="../assets/img/logo-kyb.png">
+        <h5 class="fw-bold mb-2">VERIFIKASI OTP</h5>
+        <p class="text-muted">Kode OTP telah dikirim ke WhatsApp</p>
 
-    <img src="../assets/img/logo-kyb.png">
+        <form method="POST" action="verify_otp.php" id="otpForm">
+            <input type="hidden" name="npk" value="<?= $npk ?>">
 
-    <h5 class="fw-bold mb-2">VERIFIKASI OTP</h5>
-    <p class="text-muted">Kode OTP telah dikirim ke WhatsApp</p>
+            <div class="d-flex justify-content-center mb-3">
+                <input type="text" maxlength="1" class="otp-input" name="otp[]" required>
+                <input type="text" maxlength="1" class="otp-input" name="otp[]" required>
+                <input type="text" maxlength="1" class="otp-input" name="otp[]" required>
+                <input type="text" maxlength="1" class="otp-input" name="otp[]" required>
+                <input type="text" maxlength="1" class="otp-input" name="otp[]" required>
+                <input type="text" maxlength="1" class="otp-input" name="otp[]" required>
+            </div>
 
-    <form method="POST" action="verify_otp.php" id="otpForm">
+            <div class="d-flex gap-2 mt-3">
+                <button type="submit" class="btn btn-primary flex-fill">
+                    VERIFIKASI
+                </button>
 
-        <input type="hidden" name="npk" value="<?= $npk ?>">
+                <button type="submit" formaction="proses_otp.php" name="resend" class="btn btn-secondary flex-fill">
+                    KIRIM ULANG
+                </button>
+            </div>
 
-        <div class="d-flex justify-content-center mb-3">
-            <input type="text" maxlength="1" class="otp-input" name="otp[]" required>
-            <input type="text" maxlength="1" class="otp-input" name="otp[]" required>
-            <input type="text" maxlength="1" class="otp-input" name="otp[]" required>
-            <input type="text" maxlength="1" class="otp-input" name="otp[]" required>
-            <input type="text" maxlength="1" class="otp-input" name="otp[]" required>
-            <input type="text" maxlength="1" class="otp-input" name="otp[]" required>
-        </div>
-
-        <div class="d-flex gap-2 mt-3">
-            <button type="submit" class="btn btn-primary flex-fill">
-                VERIFIKASI
-            </button>
-
-            <button type="submit" formaction="proses_otp.php" name="resend" class="btn btn-secondary flex-fill">
-                KIRIM ULANG
-            </button>
-        </div>
-
-    <!-- =============== HAPUS SAAT PRODUCTION =============== -->
-    <div class="alert alert-info text-center mt-3">
-        <b>OTP (Testing): <?= $otp_code ?></b>
     </div>
-    <!-- ===================================================== -->
-
-  </div>
 </div>
 
 <script>

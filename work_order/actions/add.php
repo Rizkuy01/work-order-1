@@ -3,6 +3,7 @@ include '../../includes/session_check.php';
 include '../../includes/role_check.php';
 only(['Maintenance']);
 include '../../config/database.php';
+include '../../config/upload_config.php';
 include '../../includes/layout.php';
 echo '<link rel="stylesheet" href="../../assets/css/bootstrap.min.css">';
 
@@ -30,13 +31,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // proses upload foto before
     $fotobefore = "";
     if (!empty($_FILES['fotobefore']['name'])) {
-        $filename =  "AFTER_" . time() . "_" . basename($_FILES['fotobefore']['name']);
-        $target_path = "../../uploads/before/" . $filename;
-
-        // Buat folder jika belum ada
-        if (!file_exists("../../uploads/before")) {
-            mkdir("../../uploads/before", 0777, true);
-        }
+        ensureUploadDirs();
+        $filename =  "BEFORE_" . time() . "_" . basename($_FILES['fotobefore']['name']);
+        $target_path = UPLOADS_BEFORE_DIR . $filename;
 
         if (move_uploaded_file($_FILES['fotobefore']['tmp_name'], $target_path)) {
             $fotobefore = $filename;

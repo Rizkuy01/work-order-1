@@ -4,6 +4,7 @@ include '../../includes/role_check.php';
 only(['Supervisor', 'Super Administrator']);
 
 include '../../config/database.php';
+include '../../config/upload_config.php';
 include '../../includes/layout.php';
 
 $id = $_GET['id'] ?? 0;
@@ -130,14 +131,14 @@ $badgeStyle = match ($status) {
 
                 <div class="col-md-6">
                     <h5 class="fw-bold text-danger mb-2">Foto Before</h5>
-                    <img src="../../uploads/before/<?= safe($data['fotobefore']) ?>"
+                    <img src="<?= UPLOADS_BEFORE_URL ?><?= safe($data['fotobefore']) ?>"
                         class="img-fluid rounded shadow"
                         style="max-height:350px; object-fit:contain;">
                 </div>
 
                 <div class="col-md-6">
                     <h5 class="fw-bold text-success mb-2">Foto After</h5>
-                    <img src="../../uploads/after/<?= safe($data['fotoafter']) ?>"
+                    <img src="<?= UPLOADS_AFTER_URL ?><?= safe($data['fotoafter']) ?>"
                         class="img-fluid rounded shadow"
                         style="max-height:350px; object-fit:contain;">
                 </div>
