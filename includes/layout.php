@@ -71,6 +71,44 @@ if (strpos($_SERVER['PHP_SELF'], '/work_order/actions/') !== false ||
       margin-right: 8px;
     }
 
+    /* === PROFILE DROPDOWN === */
+    .profile-dropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background-color: white;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      min-width: 180px;
+      margin-top: 5px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 3000;
+    }
+
+    .profile-dropdown .dropdown-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      color: #333;
+      text-decoration: none;
+      transition: 0.2s;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    .profile-dropdown .dropdown-item:hover {
+      background-color: #f5f5f5;
+      color: #d62828;
+    }
+
+    .profile-dropdown .dropdown-item i {
+      margin-right: 10px;
+      font-size: 16px;
+    }
+
     /* === SIDEBAR === */
     .sidebar {
       width: 240px;
@@ -165,8 +203,18 @@ if (strpos($_SERVER['PHP_SELF'], '/work_order/actions/') !== false ||
       <span class="ms-2 fw-semibold">Work Order System</span>
     </div>
   </div>
-  <div class="user-info">
-    <i class="bi bi-person-circle"></i><?= htmlspecialchars($nama) ?> (<?= $role ?>)
+  <div class="user-info position-relative">
+    <div class="d-flex align-items-center" style="cursor: pointer;" onclick="toggleProfileDropdown(event)">
+      <i class="bi bi-person-circle"></i>
+      <span><?= htmlspecialchars($nama) ?> (<?= $role ?>)</span>
+    </div>
+    
+    <!-- Profile Dropdown -->
+    <div id="profileDropdown" class="profile-dropdown" style="display: none;">
+      <a href="#" onclick="confirmLogout(event)" class="dropdown-item">
+        <i class="bi bi-box-arrow-right"></i> Logout
+      </a>
+    </div>
   </div>
 </div>
 
@@ -177,3 +225,49 @@ if (strpos($_SERVER['PHP_SELF'], '/work_order/actions/') !== false ||
 
 <!-- MAIN CONTENT -->
 <div class="main">
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="<?= $basePath ?>assets/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// Toggle Profile Dropdown
+function toggleProfileDropdown(event) {
+    event.preventDefault();
+    const dropdown = document.getElementById('profileDropdown');
+    if (dropdown.style.display === 'none') {
+        dropdown.style.display = 'block';
+    } else {
+        dropdown.style.display = 'none';
+    }
+}
+
+// Close dropdown ketika klik di luar
+document.addEventListener('click', function(event) {
+    const userInfo = document.querySelector('.user-info');
+    const dropdown = document.getElementById('profileDropdown');
+    
+    if (!userInfo.contains(event.target) && dropdown.style.display === 'block') {
+        dropdown.style.display = 'none';
+    }
+});
+
+// Confirm Logout dengan SweetAlert
+function confirmLogout(event) {
+    event.preventDefault();
+    
+    Swal.fire({
+        title: 'Yakin Logout?',
+        text: 'Anda akan keluar dari sistem.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Logout',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#d62828',
+        cancelButtonColor: '#6c757d'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = '<?= $basePath ?>auth/logout.php';
+        }
+    });
+}
+</script>

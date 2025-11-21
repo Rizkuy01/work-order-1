@@ -1,7 +1,12 @@
 <?php
+// Role check FIRST sebelum apapun
 include '../../includes/session_check.php';
 include '../../includes/role_check.php';
+
+// Periksa role sebelum include layout (hanya Maintenance yang bisa akses)
 only(['Maintenance']);
+
+// SETELAH role check lolos, baru include yang lain
 include '../../config/database.php';
 include '../../config/upload_config.php';
 include '../../includes/layout.php';

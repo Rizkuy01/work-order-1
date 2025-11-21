@@ -1,6 +1,10 @@
 <?php
 include '../../includes/session_check.php';
 include '../../config/database.php';
+include '../../includes/role_check.php';
+
+// Hanya Maintenance yang bisa delete
+only(['Maintenance']);
 
 $id = $_GET['id'] ?? 0;
 if ($id) {
