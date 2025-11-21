@@ -1,0 +1,30 @@
+/* Bootstrap Icons - Local Fallback Version */
+/* Untuk penggunaan offline, ganti href di layout.php ke file ini */
+
+@font-face {
+  font-family: "bootstrap-icons";
+  src: local('bootstrap-icons'), 
+       url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/fonts/bootstrap-icons.woff2?v=1.11.1") format("woff2"),
+       url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/fonts/bootstrap-icons.woff?v=1.11.1") format("woff");
+}
+
+.bi {
+  display: inline-block;
+  font-family: bootstrap-icons !important;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  vertical-align: -0.125em;
+}
+
+/* Common icon sizes */
+.bi-sm { font-size: 0.875em; }
+.bi-1x { font-size: 1em; }
+.bi-lg { font-size: 1.25em; }
+.bi-xl { font-size: 1.5em; }
+.bi-2x { font-size: 2em; }
+.bi-3x { font-size: 3em; }

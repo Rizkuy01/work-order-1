@@ -79,14 +79,14 @@ $totals = array_column($yearData, 'total');
       border-radius: 10px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.08);
       padding: 20px;
-      height: 360px; /* tinggi tetap agar sejajar */
+      height: 360px;
     }
 
     .chart-wrapper {
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 260px; /* buat donut chart lebih proporsional */
+      height: 260px;
     }
   </style>
 </head>
@@ -130,15 +130,24 @@ $totals = array_column($yearData, 'total');
 <script src="../assets/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+// Fallback jika Chart.js tidak tersedia
+if (typeof Chart === 'undefined') {
+  console.warn('Chart.js tidak tersedia. Silakan pastikan koneksi internet aktif atau download Chart.js lokal.');
+  document.querySelectorAll('.chart-card').forEach(el => {
+    el.innerHTML = '<p class="text-danger">Chart tidak dapat dimuat. Periksa koneksi internet Anda.</p>';
+  });
+}
+</script>
+<script>
 // 📊 Ambil data WO per tahun dari PHP
-const yearLabels = <?= json_encode($years) ?>; // tahun, misal [2022, 2023, 2024, 2025]
-const yearTotals = <?= json_encode($totals) ?>; // total WO per tahun, misal [10, 24, 33, 15]
+const yearLabels = <?= json_encode($years) ?>;
+const yearTotals = <?= json_encode($totals) ?>;
 
 // 🎨 Warna gradasi untuk bar chart
 function createGradient(ctx, area) {
   const gradient = ctx.createLinearGradient(0, area.bottom, 0, area.top);
-  gradient.addColorStop(0, '#ff4b2b'); // bawah
-  gradient.addColorStop(1, '#ff416c'); // atas
+  gradient.addColorStop(0, '#ff4b2b');
+  gradient.addColorStop(1, '#ff416c');
   return gradient;
 }
 
@@ -168,10 +177,13 @@ new Chart(document.getElementById('barChart'), {
         if (!chartArea) return null;
         return createGradient(ctx, chartArea);
       },
-      borderRadius: 6
+      borderRadius: 6,
+      barThickness: 30,
+      maxBarThickness: 40
     }]
   },
   options: {
+    indexAxis: undefined,
     layout: { padding: { top: 10, right: 10, bottom: 10, left: 10 } },
     plugins: {
       legend: { display: false },
@@ -185,7 +197,8 @@ new Chart(document.getElementById('barChart'), {
       y: {
         beginAtZero: true,
         grid: { color: '#ececec' },
-        ticks: { font: { size: 12 } }
+        ticks: { font: { size: 12 } },
+        suggestedMax: Math.max(...yearTotals) * 1.1
       },
       x: {
         grid: { display: false },

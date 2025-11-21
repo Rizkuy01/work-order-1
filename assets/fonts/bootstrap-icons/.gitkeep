@@ -1,0 +1,16 @@
+# Bootstrap Icons Font Files
+
+Folder ini untuk menyimpan font files dari bootstrap-icons.
+File yang dibutuhkan:
+
+- bootstrap-icons.woff2 (required)
+- bootstrap-icons.woff (optional, fallback)
+
+Download dari: https://github.com/twbs/icons/releases/tag/v1.11.1
+Extract: bootstrap-icons-1.11.1.zip
+Copy files dari: bootstrap-icons-1.11.1/fonts/
+
+Ukuran file:
+
+- bootstrap-icons.woff2: ~100 KB
+- bootstrap-icons.woff: ~150 KB

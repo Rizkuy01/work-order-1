@@ -36,14 +36,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $pic2      = mysqli_real_escape_string($conn, $_POST['pic2']);
   $pic3      = mysqli_real_escape_string($conn, $_POST['pic3']);
   $note      = mysqli_real_escape_string($conn, $_POST['note']);
-  $id_user   = $_SESSION['id_user'];
+  $id_user   = $_SESSION['npk'];
 
   // INSERT KE TABEL wo_schedule
   $insert = "
     INSERT INTO wo_schedule 
     (id_work_order, plan_date, plan_time, pic, note, scheduled_by)
     VALUES 
-    ($id, '$plan_date', '$plan_time', '$pic', '$note', $id_user)
+    ($id, '$plan_date', '$plan_time', '$pic', '$note', '$id_user')
   ";
 
   // UPDATE KE TABEL work_order

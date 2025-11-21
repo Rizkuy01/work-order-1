@@ -46,103 +46,120 @@ $badgeStyle = match($status) {
 
         <div class="card-body p-4">
 
-            <!-- ⭐ Highlight -->
-            <div class="text-center mb-4">
-                <h3 class="fw-bold" style="color:#ff416c"><?= strtoupper(safe($data['nama_mesin'])) ?></h3>
-
-                <span class="badge px-4 py-2 fw-semibold"
-                    style="font-size:1rem; <?= $badgeStyle ?> border-radius:8px;">
-                    <?= strtoupper($status) ?>
-                </span>
-            </div>
-
-            <!-- GRID 3 KOLOM -->
-            <div class="row g-3">
-
-                <!-- Kolom 1 -->
+            <!-- LAYOUT: FOTO KIRI + JUDUL DAN DATA KANAN -->
+            <div class="row g-4">
+                
+                <!-- KOLOM KIRI: FOTO -->
                 <div class="col-md-4">
-                    <?php
-                    $left = [
-                        "Judul WO" => $data['judul_wo'],
-                        "Detail WO" => $data['detail_wo'],
-                        "Creator" => $data['creator'],
-                        "Initiator" => $data['initiator'],
-                        "PIC" => $data['pic'],
-                        "Note" => $data['note'],
-                    ];
+                    <div class="mb-3">
+                        <h6 class="fw-bold text-danger mb-2" style="font-size: 12px;">FOTO AFTER</h6>
+                        <img src="<?= UPLOADS_AFTER_URL ?><?= safe($data['fotoafter']) ?>"
+                            class="img-fluid rounded shadow zoom-img"
+                            onclick="zoomImage(this.src)"
+                            style="width: 100%; height: 180px; object-fit: cover;">
+                    </div>
 
-                    foreach ($left as $label => $value):
-                    ?>
-                        <div class="detail-item">
-                            <strong><?= $label ?></strong>
-                            <span><?= safe($value) ?></span>
+                    <div>
+                        <h6 class="fw-bold text-info mb-2" style="font-size: 12px;">FOTO BEFORE</h6>
+                        <img src="<?= UPLOADS_BEFORE_URL ?><?= safe($data['fotobefore']) ?>"
+                            class="img-fluid rounded shadow zoom-img"
+                            onclick="zoomImage(this.src)"
+                            style="width: 100%; height: 180px; object-fit: cover;">
+                    </div>
+                </div>
+
+                <!-- KOLOM KANAN: JUDUL + DATA -->
+                <div class="col-md-8">
+                    <!-- JUDUL DAN STATUS -->
+                    <div class="mb-3 pb-2 border-bottom">
+                        <h4 class="fw-bold" style="color:#ff416c; margin-bottom: 6px;"><?= strtoupper(safe($data['nama_mesin'])) ?></h4>
+                        <span class="badge px-3 py-1 fw-semibold"
+                            style="font-size:0.9rem; <?= $badgeStyle ?> border-radius:6px;">
+                            <?= strtoupper($status) ?>
+                        </span>
+                    </div>
+
+                    <!-- DATA (2 KOLOM) -->
+                    <div class="row g-2">
+                        <!-- KOLOM DATA KIRI -->
+                        <div class="col-md-6 border-end">
+                            <?php
+                            $left = [
+                                "Judul WO" => $data['judul_wo'],
+                                "Detail WO" => $data['detail_wo'],
+                                "Creator" => $data['creator'],
+                                "Initiator" => $data['initiator'],
+                                "Section" => $data['section'],
+                                "Line" => $data['line'],
+                            ];
+
+                            foreach ($left as $label => $value):
+                            ?>
+                                <div class="detail-item">
+                                    <strong><?= $label ?></strong>
+                                    <span><?= safe($value) ?></span>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
-                    <?php endforeach; ?>
-                </div>
 
-                <!-- Kolom 2 -->
-                <div class="col-md-4">
-                    <?php
-                    $mid = [
-                        "Section" => $data['section'],
-                        "Line" => $data['line'],
-                        "Tipe Perbaikan" => $data['tipe'],
-                        "Tanggal Temuan" => $data['tgl_temuan'],
-                        "Plan Date" => $data['tgl_plan'],
-                        "Plan Time" => $data['jam_plan'],
-                    ];
+                        <!-- KOLOM DATA KANAN -->
+                        <div class="col-md-6">
+                            <?php
+                            $right = [
+                                "Tipe Perbaikan" => $data['tipe'],
+                                "Tanggal Temuan" => $data['tgl_temuan'],
+                                "Plan Date" => $data['tgl_plan'],
+                                "Plan Time" => $data['jam_plan'],
+                                "PIC" => $data['pic'],
+                                "PIC 2" => $data['pic2'],
+                            ];
 
-                    foreach ($mid as $label => $value):
-                    ?>
-                        <div class="detail-item">
-                            <strong><?= $label ?></strong>
-                            <span><?= safe($value) ?></span>
+                            foreach ($right as $label => $value):
+                            ?>
+                                <div class="detail-item">
+                                    <strong><?= $label ?></strong>
+                                    <span><?= safe($value) ?></span>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
-                    <?php endforeach; ?>
-                </div>
+                    </div>
 
-                <!-- Kolom 3 -->
-                <div class="col-md-4">
-                    <?php
-                    $right = [
-                        
-                        "PIC 2" => $data['pic2'],
-                        "PIC 3" => $data['pic3'],
-                        "Person Scheduled" => $data['person_scheduled'],
-                        "Person Approved" => $data['person_approved'],
-                        "Person Accept" => $data['person_accept'],
-                        "Person Finish" => $data['person_finish'],
-                        // "Reject Note" => $data['reject_note'],
-                    ];
+                    <!-- DATA TAMBAHAN (Approval, Scheduled, dll) -->
+                    <div class="row g-2 mt-2">
+                        <div class="col-md-6 border-end">
+                            <?php
+                            $approval = [
+                                "Person Scheduled" => $data['person_scheduled'],
+                                "Person Approved" => $data['person_approved'],
+                            ];
 
-                    foreach ($right as $label => $value):
-                    ?>
-                        <div class="detail-item">
-                            <strong><?= $label ?></strong>
-                            <span><?= safe($value) ?></span>
+                            foreach ($approval as $label => $value):
+                            ?>
+                                <div class="detail-item">
+                                    <strong><?= $label ?></strong>
+                                    <span><?= safe($value) ?></span>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
-                    <?php endforeach; ?>
+
+                        <div class="col-md-6">
+                            <?php
+                            $finish = [
+                                "Person Accept" => $data['person_accept'],
+                                "Person Finish" => $data['person_finish'],
+                            ];
+
+                            foreach ($finish as $label => $value):
+                            ?>
+                                <div class="detail-item">
+                                    <strong><?= $label ?></strong>
+                                    <span><?= safe($value) ?></span>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
                 </div>
 
-            </div>
-
-            <hr class="my-4">
-
-            <!-- FOTO -->
-            <div class="row text-center">
-                <div class="col-md-6">
-                    <h6 class="fw-bold text-danger">Foto Before</h6>
-                    <img src="<?= UPLOADS_BEFORE_URL ?><?= safe($data['fotobefore']) ?>"
-                        class="img-fluid rounded shadow zoom-img"
-                        onclick="zoomImage(this.src)">
-                </div>
-
-                <div class="col-md-6">
-                    <h6 class="fw-bold text-success">Foto After</h6>
-                    <img src="<?= UPLOADS_AFTER_URL ?><?= safe($data['fotoafter']) ?>"
-                        class="img-fluid rounded shadow zoom-img"
-                        onclick="zoomImage(this.src)">
-                </div>
             </div>
 
             <div class="text-end mt-4">
@@ -161,45 +178,68 @@ $badgeStyle = match($status) {
 
 <style>
 .detail-item {
-    display:flex;
-    justify-content:space-between;
-    border-bottom:1px dashed #ddd;
-    padding:6px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid #f0f0f0;
+    padding: 5px 0;
+    font-size: 13px;
 }
+
 .detail-item strong {
-    width:50%;
-    color:#2c3e50;
+    color: #2c3e50;
+    font-weight: 600;
+    flex: 0 0 40%;
 }
+
 .detail-item span {
-    width:50%;
-    text-align:right;
-    color:#34495e;
+    color: #555;
+    text-align: right;
+    flex: 1;
+    word-break: break-word;
+    font-size: 12px;
+}
+
+/* Garis pembatas vertikal di tengah */
+.col-md-6.border-end {
+    border-right: 2px solid #ddd !important;
+    padding-right: 12px;
+}
+
+.col-md-6 {
+    padding-left: 12px;
 }
 
 /* Foto */
 .zoom-img {
-    max-height: 250px;
-    object-fit: cover;
     cursor: zoom-in;
     transition: 0.3s;
+    border: 2px solid #f0f0f0;
 }
-.zoom-img:hover { transform: scale(1.03); }
+
+.zoom-img:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
 
 /* Modal Fullscreen */
 .img-modal {
-    display:none;
-    position:fixed;
-    z-index:9999;
-    left:0; top:0;
-    width:100%; height:100%;
-    background:rgba(0,0,0,0.8);
-    text-align:center;
-    padding-top:40px;
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    text-align: center;
+    padding-top: 40px;
 }
+
 .img-modal-content {
-    max-width:90%;
-    max-height:90%;
-    border-radius:8px;
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 8px;
 }
 </style>
 

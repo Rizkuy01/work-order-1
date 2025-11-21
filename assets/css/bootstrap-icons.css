@@ -1,0 +1,50 @@
+@font-face {
+  font-family: "bootstrap-icons";
+  src: url("../fonts/bootstrap-icons/bootstrap-icons.woff2?v=1.11.1") format("woff2"),
+       url("../fonts/bootstrap-icons/bootstrap-icons.woff?v=1.11.1") format("woff");
+  font-display: block;
+}
+
+.bi {
+  display: inline-block;
+  font-family: "bootstrap-icons" !important;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  vertical-align: -0.125em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.bi::before {
+  display: inline-block;
+  content: attr(data-icon);
+  font-family: "bootstrap-icons" !important;
+}
+
+/* Icon content mapping - just a few examples, full list would be much longer */
+.bi-chevron-down::before { content: "\f282"; }
+.bi-chevron-up::before { content: "\f282"; }
+.bi-chevron-left::before { content: "\f282"; }
+.bi-chevron-right::before { content: "\f282"; }
+.bi-search::before { content: "\f67f"; }
+.bi-gear::before { content: "\f2f7"; }
+.bi-bell::before { content: "\f102"; }
+.bi-house::before { content: "\f30f"; }
+.bi-box-arrow-right::before { content: "\f143"; }
+.bi-person::before { content: "\f542"; }
+.bi-plus::before { content: "\f65b"; }
+.bi-trash::before { content: "\f92b"; }
+.bi-pencil::before { content: "\f537"; }
+.bi-eye::before { content: "\f26f"; }
+.bi-check::before { content: "\f26c"; }
+.bi-x::before { content: "\f62a"; }
+.bi-download::before { content: "\f25d"; }
+.bi-upload::before { content: "\f93e"; }
+.bi-calendar::before { content: "\f17a"; }
+.bi-clock::before { content: "\f29e"; }
+.bi-checkmark::before { content: "\f26c"; }
+.bi-info-circle::before { content: "\f330"; }
+.bi-exclamation-triangle::before { content: "\f26d"; }

@@ -124,7 +124,7 @@ $result = mysqli_query($conn, $query);
                 <tr>
                   <td class="fw-semibold"><?= htmlspecialchars($row['nama_mesin']) ?></td>
                   <td><?= htmlspecialchars($row['judul_wo']) ?></td>
-                  <td><?= date('d M Y H:i', strtotime($row['tgl_input'])) ?></td>
+                  <td><?= date('d M Y', strtotime($row['tgl_input'])) ?></td>
                   <td>
                     <?php
                       $status = htmlspecialchars($row['status']);

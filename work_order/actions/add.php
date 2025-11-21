@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $judul_wo   = mysqli_real_escape_string($conn, $_POST['judul_wo']);
     $detail_wo  = mysqli_real_escape_string($conn, $_POST['detail_wo']);
     $tgl_temuan = mysqli_real_escape_string($conn, $_POST['tgl_temuan']);
-    $id_user    = $_SESSION['id_user'];
+    $id_user    = $_SESSION['npk'];
     $tgl_input  = date('Y-m-d');
     $status     = 'WAITING SCHEDULE';
 

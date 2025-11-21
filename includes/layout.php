@@ -21,7 +21,14 @@ if (strpos($_SERVER['PHP_SELF'], '/work_order/actions/') !== false ||
   <title>Work Order System - KYB</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="<?= $basePath ?>assets/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <!-- Bootstrap Icons - Local (Offline Support) -->
+  <link rel="stylesheet" href="<?= $basePath ?>assets/css/bootstrap-icons.css">
+  <style>
+    /* Fallback icons jika local file juga tidak available */
+    .bi:not([class*="bi-"]) {
+      content: "◆";
+    }
+  </style>
 
   <style>
     :root {
@@ -50,7 +57,7 @@ if (strpos($_SERVER['PHP_SELF'], '/work_order/actions/') !== false ||
       padding: 0 25px;
       position: fixed;
       top: 0;
-      left: 0;
+      left: 240px;
       right: 0;
       z-index: 2000;
       box-shadow: var(--shadow);
@@ -114,14 +121,14 @@ if (strpos($_SERVER['PHP_SELF'], '/work_order/actions/') !== false ||
       width: 240px;
       background-color: var(--sidebar-bg);
       position: fixed;
-      top: 60px;
+      top: 0;
       bottom: 0;
       left: 0;
       border-right: 1px solid #e0e0e0;
       box-shadow: var(--shadow);
       overflow-y: auto;
       transition: 0.3s;
-      z-index: 1000;
+      z-index: 1500;
     }
 
     .brand {
@@ -162,20 +169,28 @@ if (strpos($_SERVER['PHP_SELF'], '/work_order/actions/') !== false ||
     /* === MAIN === */
     .main {
       margin-left: 240px;
-      margin-top: 80px;
+      margin-top: 60px;
       padding: 20px;
     }
 
     /* === RESPONSIVE === */
     @media (max-width: 992px) {
+      .topbar {
+        left: 0;
+      }
+      
       .sidebar {
+        top: 0;
         left: -240px;
       }
+      
       .sidebar.active {
         left: 0;
       }
+      
       .main {
         margin-left: 0;
+        margin-top: 80px;
       }
       .toggle-btn {
         display: inline-block;
