@@ -40,7 +40,8 @@ $totals = array_column($yearData, 'total');
   <meta charset="UTF-8">
   <title>Dashboard - Work Order</title>
   <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="../assets/css/bootstrap-icons.css">
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"> -->
   <style>
     body { background-color: #f4f6f9; font-family: 'Segoe UI', sans-serif; }
 
@@ -128,7 +129,7 @@ $totals = array_column($yearData, 'total');
 </div>
 
 <script src="../assets/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="../assets/js/chart.min.js"></script>
 <script>
 // Fallback jika Chart.js tidak tersedia
 if (typeof Chart === 'undefined') {

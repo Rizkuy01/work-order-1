@@ -21,6 +21,9 @@ if (!$d) {
 
 $nohp = $d['no_hp'];
 
+// ====== Hapus OTP lama yang sudah expired ======
+mysqli_query($conn, "DELETE FROM otp WHERE npk='$npk' AND expired_at < NOW()");
+
 // generate otp
 $otp_code = rand(100000, 999999);
 $expired = date('Y-m-d H:i:s', time() + 300);

@@ -6,12 +6,11 @@ include '../includes/layout.php';
 // ====== FILTER DAN PENCARIAN ======
 $search = $_GET['search'] ?? '';
 $statusFilter = $_GET['status'] ?? '';
+$sectionFilter = $_GET['section'] ?? '';
+$lineFilter = $_GET['line'] ?? '';
+$mesinFilter = $_GET['mesin'] ?? '';
 $sort = $_GET['sort'] ?? 'tgl_input';
 $order = $_GET['order'] ?? 'DESC';
-
-// ✅ Tambahan: Filter tanggal
-$fromDate = $_GET['from_date'] ?? '';
-$toDate   = $_GET['to_date'] ?? '';
 
 // ====== Pagination ======
 $limit = 10;
@@ -33,13 +32,22 @@ if (!empty($statusFilter)) {
   $where .= " AND status = '$safeStatus'";
 }
 
-// ✅ Filter tanggal (antara from_date dan to_date)
-if (!empty($fromDate) && !empty($toDate)) {
-  $where .= " AND DATE(tgl_input) BETWEEN '$fromDate' AND '$toDate'";
-} elseif (!empty($fromDate)) {
-  $where .= " AND DATE(tgl_input) >= '$fromDate'";
-} elseif (!empty($toDate)) {
-  $where .= " AND DATE(tgl_input) <= '$toDate'";
+// 🔍 Filter section
+if (!empty($sectionFilter)) {
+  $safeSection = mysqli_real_escape_string($conn, $sectionFilter);
+  $where .= " AND section = '$safeSection'";
+}
+
+// 🔍 Filter line
+if (!empty($lineFilter)) {
+  $safeLine = mysqli_real_escape_string($conn, $lineFilter);
+  $where .= " AND line = '$safeLine'";
+}
+
+// 🔍 Filter mesin
+if (!empty($mesinFilter)) {
+  $safeMesin = mysqli_real_escape_string($conn, $mesinFilter);
+  $where .= " AND nama_mesin = '$safeMesin'";
 }
 
 // ====== Hitung total data ======
@@ -58,7 +66,7 @@ $result = mysqli_query($conn, $query);
   <!-- ✅ Tombol di atas card -->
   <div class="d-flex justify-content-between align-items-center mb-3">
     <div>
-      <a href="export_excel.php?search=<?= urlencode($search) ?>&status=<?= urlencode($statusFilter) ?>&from_date=<?= urlencode($fromDate) ?>&to_date=<?= urlencode($toDate) ?>"
+      <a href="export_excel.php?search=<?= urlencode($search) ?>&status=<?= urlencode($statusFilter) ?>&section=<?= urlencode($sectionFilter) ?>&line=<?= urlencode($lineFilter) ?>&mesin=<?= urlencode($mesinFilter) ?>"
         class="btn btn-gradient-excel shadow-sm me-2">
         <i class="bi bi-file-earmark-excel"></i> Export Excel
       </a>
@@ -78,17 +86,34 @@ $result = mysqli_query($conn, $query);
       <!-- 🔎 Filter dan Pencarian -->
       <form method="GET" class="row g-2 mb-3">
         <div class="col-md-3">
-          <input type="text" name="search" value="<?= htmlspecialchars($search) ?>" class="form-control" placeholder="Cari nama mesin atau judul WO...">
+          <input type="text" name="search" value="<?= htmlspecialchars($search) ?>" class="form-control" placeholder="Cari judul WO...">
         </div>
 
         <div class="col-md-2">
-          <input type="date" name="from_date" value="<?= htmlspecialchars($fromDate) ?>" class="form-control" placeholder="Dari tanggal">
-        </div>
-        <div class="col-md-2">
-          <input type="date" name="to_date" value="<?= htmlspecialchars($toDate) ?>" class="form-control" placeholder="Sampai tanggal">
+          <select name="section" id="filterSection" class="form-select">
+            <option value="" selected>Semua Section</option>
+            <?php 
+            $sections_list = ['PROD1', 'PROD2', 'PROD3', 'PROD4', 'PROD5', 'QA Lab'];
+            foreach ($sections_list as $section_name):
+            ?>
+              <option value="<?= $section_name ?>" <?= $sectionFilter == $section_name ? 'selected' : '' ?>><?= $section_name ?></option>
+            <?php endforeach; ?>
+          </select>
         </div>
 
-        <div class="col-md-3">
+        <div class="col-md-2">
+          <select name="line" id="filterLine" class="form-select">
+            <option value="">Semua Line</option>
+          </select>
+        </div>
+
+        <div class="col-md-2">
+          <select name="mesin" id="filterMesin" class="form-select">
+            <option value="">Semua Mesin</option>
+          </select>
+        </div>
+
+        <div class="col-md-2">
           <select name="status" class="form-select">
             <option value="">Semua Status</option>
             <option value="WAITING SCHEDULE" <?= $statusFilter == 'WAITING SCHEDULE' ? 'selected' : '' ?>>Waiting Schedule</option>
@@ -101,7 +126,7 @@ $result = mysqli_query($conn, $query);
           </select>
         </div>
 
-        <div class="col-md-2 d-grid">
+        <div class="col-md-1 d-grid">
           <button class="btn btn-danger"><i class="bi bi-funnel me-1"></i> Filter</button>
         </div>
       </form>
@@ -179,7 +204,7 @@ $result = mysqli_query($conn, $query);
         <ul class="pagination pagination-sm mb-0">
           <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
             <a class="page-link"
-              href="?page=<?= max(1, $page - 1) ?>&search=<?= urlencode($search) ?>&status=<?= urlencode($statusFilter) ?>&from_date=<?= urlencode($fromDate) ?>&to_date=<?= urlencode($toDate) ?>&sort=<?= $sort ?>&order=<?= $order ?>">
+              href="?page=<?= max(1, $page - 1) ?>&search=<?= urlencode($search) ?>&status=<?= urlencode($statusFilter) ?>&section=<?= urlencode($sectionFilter) ?>&line=<?= urlencode($lineFilter) ?>&mesin=<?= urlencode($mesinFilter) ?>&sort=<?= $sort ?>&order=<?= $order ?>">
               &laquo; Prev
             </a>
           </li>
@@ -191,7 +216,7 @@ $result = mysqli_query($conn, $query);
           ?>
             <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
               <a class="page-link"
-                href="?page=<?= $i ?>&search=<?= urlencode($search) ?>&status=<?= urlencode($statusFilter) ?>&from_date=<?= urlencode($fromDate) ?>&to_date=<?= urlencode($toDate) ?>&sort=<?= $sort ?>&order=<?= $order ?>">
+                href="?page=<?= $i ?>&search=<?= urlencode($search) ?>&status=<?= urlencode($statusFilter) ?>&section=<?= urlencode($sectionFilter) ?>&line=<?= urlencode($lineFilter) ?>&mesin=<?= urlencode($mesinFilter) ?>&sort=<?= $sort ?>&order=<?= $order ?>">
                 <?= $i ?>
               </a>
             </li>
@@ -199,7 +224,7 @@ $result = mysqli_query($conn, $query);
 
           <li class="page-item <?= ($page >= $totalPages) ? 'disabled' : '' ?>">
             <a class="page-link"
-              href="?page=<?= min($totalPages, $page + 1) ?>&search=<?= urlencode($search) ?>&status=<?= urlencode($statusFilter) ?>&from_date=<?= urlencode($fromDate) ?>&to_date=<?= urlencode($toDate) ?>&sort=<?= $sort ?>&order=<?= $order ?>">
+              href="?page=<?= min($totalPages, $page + 1) ?>&search=<?= urlencode($search) ?>&status=<?= urlencode($statusFilter) ?>&section=<?= urlencode($sectionFilter) ?>&line=<?= urlencode($lineFilter) ?>&mesin=<?= urlencode($mesinFilter) ?>&sort=<?= $sort ?>&order=<?= $order ?>">
               Next &raquo;
             </a>
           </li>
@@ -296,4 +321,64 @@ $result = mysqli_query($conn, $query);
   }
 </style>
 
+<!-- AJAX UNTUK FILTER LINE & MESIN -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function () {
+    // Load line saat section dipilih
+    $("#filterSection").change(function () {
+        var section = $(this).val();
+        
+        if (section == '') {
+            $("#filterLine").html('<option value="">Semua Line</option>');
+            $("#filterMesin").html('<option value="">Semua Mesin</option>');
+            return;
+        }
+
+        $.post("filter_line.php", { section: section }, function (data) {
+            $("#filterLine").html(data);
+            $("#filterMesin").html('<option value="">Semua Mesin</option>');
+        });
+    });
+
+    // Load mesin saat line dipilih
+    $("#filterLine").change(function () {
+        var line = $(this).val();
+        
+        if (line == '') {
+            $("#filterMesin").html('<option value="">Semua Mesin</option>');
+            return;
+        }
+
+        $.post("filter_mesin.php", { line: line }, function (data) {
+            $("#filterMesin").html(data);
+        });
+    });
+
+    // Load line & mesin saat halaman pertama kali load
+    var section = $("#filterSection").val();
+    if (section != '') {
+        $.post("filter_line.php", { section: section }, function (data) {
+            $("#filterLine").html(data);
+            
+            // Set selected line jika ada
+            var line = '<?= htmlspecialchars($lineFilter) ?>';
+            if (line != '') {
+                $("#filterLine").val(line);
+                
+                // Load mesin untuk line tersebut
+                $.post("filter_mesin.php", { line: line }, function (data2) {
+                    $("#filterMesin").html(data2);
+                    var mesin = '<?= htmlspecialchars($mesinFilter) ?>';
+                    if (mesin != '') {
+                        $("#filterMesin").val(mesin);
+                    }
+                });
+            }
+        });
+    }
+});
+</script>
+
 <?php include '../includes/footer.php'; ?>
+

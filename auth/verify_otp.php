@@ -64,5 +64,29 @@ unset($_SESSION['pending_role']);
 unset($_SESSION['pending_dept']);
 unset($_SESSION['pending_section']);
 
+// ====== CLEANUP OTP ======
+// 1. Hapus OTP yang baru saja digunakan (berhasil login)
+if ($data) {
+    mysqli_query($conn, "DELETE FROM otp WHERE id = " . $data['id']);
+}
+
+// 2. Hapus semua OTP lama yang sudah expired untuk NPK ini
+mysqli_query($conn, "DELETE FROM otp WHERE npk='$npk' AND expired_at < NOW()");
+
+// 3. Hapus OTP duplikat (lebih dari 1 untuk NPK yang sama)
+$cleanup = "
+    DELETE FROM otp 
+    WHERE npk='$npk' 
+    AND id NOT IN (
+        SELECT id FROM (
+            SELECT id FROM otp 
+            WHERE npk='$npk' 
+            ORDER BY created_at DESC 
+            LIMIT 1
+        ) AS latest
+    )
+";
+mysqli_query($conn, $cleanup);
+
 header("Location: ../work_order/dashboard.php");
 exit;
