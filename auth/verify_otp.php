@@ -22,7 +22,7 @@ $q = mysqli_query($conn, "
 
 $data = mysqli_fetch_assoc($q);
 
-// Validasi OTP - bisa menggunakan OTP dari DB atau default 123456
+// Validasi OTP - default: 123456
 $is_valid = false;
 $is_expired = false;
 
@@ -65,15 +65,11 @@ unset($_SESSION['pending_dept']);
 unset($_SESSION['pending_section']);
 
 // ====== CLEANUP OTP ======
-// 1. Hapus OTP yang baru saja digunakan (berhasil login)
 if ($data) {
     mysqli_query($conn, "DELETE FROM otp WHERE id = " . $data['id']);
 }
 
-// 2. Hapus semua OTP lama yang sudah expired untuk NPK ini
 mysqli_query($conn, "DELETE FROM otp WHERE npk='$npk' AND expired_at < NOW()");
-
-// 3. Hapus OTP duplikat (lebih dari 1 untuk NPK yang sama)
 $cleanup = "
     DELETE FROM otp 
     WHERE npk='$npk' 

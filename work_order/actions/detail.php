@@ -46,7 +46,7 @@ $badgeStyle = match($status) {
 
         <div class="card-body p-4">
 
-            <!-- LAYOUT: FOTO KIRI + JUDUL DAN DATA KANAN -->
+            <!-- LAYOUT -->
             <div class="row g-4">
                 
                 <!-- KOLOM KIRI: FOTO -->
@@ -68,7 +68,7 @@ $badgeStyle = match($status) {
                     </div>
                 </div>
 
-                <!-- KOLOM KANAN: JUDUL + DATA -->
+                <!-- DATA -->
                 <div class="col-md-8">
                     <!-- JUDUL DAN STATUS -->
                     <div class="mb-3 pb-2 border-bottom">
@@ -79,9 +79,19 @@ $badgeStyle = match($status) {
                         </span>
                     </div>
 
-                    <!-- DATA (2 KOLOM) -->
+                    <!-- REJECT NOTE -->
+                    <?php if ($status === 'REJECTED' && !empty($data['reject_note'])): ?>
+                        <div class="alert alert-danger mb-3" style="border-radius: 8px; border-left: 4px solid #c0392b;">
+                            <h6 class="fw-bold mb-2" style="color: #c0392b;">
+                                <i class="bi bi-exclamation-circle me-2"></i> Alasan Penolakan
+                            </h6>
+                            <p class="mb-0"><?= safe($data['reject_note']) ?></p>
+                        </div>
+                    <?php endif; ?>
+
+                    <!-- DATA -->
                     <div class="row g-2">
-                        <!-- KOLOM DATA KIRI -->
+                        <!-- KOLOM 1 -->
                         <div class="col-md-6 border-end">
                             <?php
                             $left = [
@@ -102,7 +112,7 @@ $badgeStyle = match($status) {
                             <?php endforeach; ?>
                         </div>
 
-                        <!-- KOLOM DATA KANAN -->
+                        <!-- KOLOM 2 -->
                         <div class="col-md-6">
                             <?php
                             $right = [
@@ -123,8 +133,6 @@ $badgeStyle = match($status) {
                             <?php endforeach; ?>
                         </div>
                     </div>
-
-                    <!-- DATA TAMBAHAN (Approval, Scheduled, dll) -->
                     <div class="row g-2 mt-2">
                         <div class="col-md-6 border-end">
                             <?php
