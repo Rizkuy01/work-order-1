@@ -119,10 +119,8 @@ $totals = array_column($yearData, 'total');
     </div>
     <div class="col-md-6">
       <div class="chart-card">
-        <h6 class="text-primary fw-semibold mb-3"><i class="bi bi-pie-chart me-2"></i>Distribusi Work Order</h6>
-        <div class="chart-wrapper">
-          <canvas id="pieChart" style="max-width:320px; max-height:320px;"></canvas>
-        </div>
+        <h6 class="text-primary fw-semibold mb-3"><i class="bi bi-bar-chart-line me-2"></i>Distribusi Work Order per Status</h6>
+        <canvas id="pieChart" height="220"></canvas>
       </div>
     </div>
   </div>
@@ -143,6 +141,37 @@ if (typeof Chart === 'undefined') {
 // 📊 Ambil data WO per tahun dari PHP
 const yearLabels = <?= json_encode($years) ?>;
 const yearTotals = <?= json_encode($totals) ?>;
+
+// 📊 Data untuk Distribusi per Status
+const labels = [
+  'Waiting Schedule', 
+  'Waiting Approval', 
+  'Opened', 
+  'On Progress', 
+  'Waiting Checked', 
+  'Finished', 
+  'Rejected'
+];
+
+const dataWO = [
+  <?= $woWaiting ?>,
+  <?= $woApproval ?>,
+  <?= $woOpened ?>,
+  <?= $woProgress ?>,
+  <?= $woChecked ?>,
+  <?= $woFinish ?>,
+  <?= $woReject ?>
+];
+
+const colors = [
+  '#f1c40f',
+  '#9b59b6',
+  '#7f8c8d',
+  '#e67e22',
+  '#086bff',
+  '#27ae60',
+  '#e74c3c'
+];
 
 // 🎨 Warna gradasi untuk bar chart
 function createGradient(ctx, area) {
@@ -216,77 +245,52 @@ new Chart(document.getElementById('barChart'), {
     }
   }
 });
-
-
-// 🍩 Donut Chart (Tetap Sama)
-const labels = [
-  'Waiting Schedule', 
-  'Waiting Approval', 
-  'Opened', 
-  'On Progress', 
-  'Waiting Checked', 
-  'Finished', 
-  'Rejected'
-];
-
-const dataWO = [
-  <?= $woWaiting ?>,
-  <?= $woApproval ?>,
-  <?= $woOpened ?>,
-  <?= $woProgress ?>,
-  <?= $woChecked ?>,
-  <?= $woFinish ?>,
-  <?= $woReject ?>
-];
-
-const colors = [
-  '#f1c40f',
-  '#9b59b6',
-  '#7f8c8d',
-  '#e67e22',
-  '#086bff',
-  '#27ae60',
-  '#e74c3c'
-];
-
+// 📊 Bar Chart - Distribusi Work Order per Status
 new Chart(document.getElementById('pieChart'), {
-  type: 'doughnut',
+  type: 'bar',
   data: {
     labels: labels,
     datasets: [{
+      label: 'Jumlah Work Order',
       data: dataWO,
       backgroundColor: colors,
-      hoverOffset: 10,
-      borderWidth: 1
+      borderRadius: 6,
+      barThickness: 35,
+      maxBarThickness: 45
     }]
   },
   options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    cutout: '68%',
-    layout: { padding: { top: 20, bottom: 20 } },
+    indexAxis: 'x',
+    layout: { padding: { top: 10, right: 10, bottom: 10, left: 10 } },
     plugins: {
-      legend: {
-        position: 'bottom',
-        align: 'center',
-        labels: {
-          boxWidth: 14,
-          font: { size: 12 },
-          padding: 10,
-          color: '#2c3e50'
-        }
-      },
+      legend: { display: false },
       tooltip: {
         backgroundColor: '#2c3e50',
         titleFont: { weight: 'bold' },
         cornerRadius: 8
       }
     },
+    scales: {
+      y: {
+        beginAtZero: true,
+        grid: { color: '#ececec' },
+        ticks: { font: { size: 12 } },
+        suggestedMax: Math.max(...dataWO) * 1.1
+      },
+      x: {
+        grid: { display: false },
+        ticks: {
+          font: { size: 12 },
+          maxRotation: 45,
+          minRotation: 0
+        }
+      }
+    },
+    responsive: true,
+    maintainAspectRatio: true,
     animation: {
-      animateScale: true,
-      animateRotate: true,
-      duration: 1300,
-      easing: 'easeOutCubic'
+      duration: 1200,
+      easing: 'easeOutQuart'
     }
   }
 });

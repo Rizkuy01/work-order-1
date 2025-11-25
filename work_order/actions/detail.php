@@ -89,7 +89,7 @@ $badgeStyle = match($status) {
                                 "Detail WO" => $data['detail_wo'],
                                 "Creator" => $data['creator'],
                                 "Initiator" => $data['initiator'],
-                                "Section" => $data['section'],
+                                "Dept" => $data['dept'],
                                 "Line" => $data['line'],
                             ];
 

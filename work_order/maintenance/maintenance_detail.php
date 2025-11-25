@@ -47,7 +47,7 @@ $badgeStyle = match($status) {
       <div class="info-item"><strong>Deskripsi</strong><span><?= safe($row['detail_wo']) ?></span></div>
       <div class="info-item"><strong>Tipe</strong><span><?= safe($row['tipe']) ?></span></div>
       <div class="info-item"><strong>Line</strong><span><?= safe($row['line']) ?></span></div>
-      <div class="info-item"><strong>Section</strong><span><?= safe($row['section']) ?></span></div>
+      <div class="info-item"><strong>Departement</strong><span><?= safe($row['dept']) ?></span></div>
       <div class="info-item"><strong>PIC</strong><span><?= safe($row['pic']) ?></span></div>
       <div class="info-item"><strong>PIC 2</strong><span><?= safe($row['pic2']) ?></span></div>
       <div class="info-item"><strong>PIC 3</strong><span><?= safe($row['pic3']) ?></span></div>

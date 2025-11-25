@@ -23,7 +23,7 @@ $q_section = mysqli_query($conn, "SELECT DISTINCT prod FROM mesin ORDER BY prod 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $initiator  = mysqli_real_escape_string($conn, $_POST['initiator']);
-    $section    = mysqli_real_escape_string($conn, $_POST['section']);
+    $dept       = mysqli_real_escape_string($conn, $_POST['section']);
     $tipe       = mysqli_real_escape_string($conn, $_POST['tipe']);
     $line       = mysqli_real_escape_string($conn, $_POST['line']);
     $nama_mesin = mysqli_real_escape_string($conn, $_POST['nama_mesin']);
@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $update = "
         UPDATE work_order SET 
         initiator = '$initiator',
-        section = '$section',
+        dept = '$dept',
         tipe = '$tipe',
         line = '$line',
         nama_mesin = '$nama_mesin',
@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ";
 
     if (mysqli_query($conn, $update)) {
-        echo "<script>alert('Data berhasil diperbarui');window.location='../index.php';</script>";
+        echo "<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script><script>Swal.fire({icon: 'success', title: 'Berhasil!', text: 'Data berhasil diperbarui'}).then(() => { window.location='../index.php'; });</script>";
         exit;
     } else {
         echo "<div class='alert alert-danger mt-3 text-center'>
@@ -95,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <option value="">-- Pilih Section --</option>
                 <?php while ($s = mysqli_fetch_assoc($q_section)) : ?>
                   <option value="<?= $s['prod'] ?>"
-                    <?= ($s['prod'] == $data['section']) ? 'selected' : '' ?>>
+                    <?= ($s['prod'] == $data['dept']) ? 'selected' : '' ?>>
                     <?= $s['prod'] ?>
                   </option>
                 <?php endwhile; ?>

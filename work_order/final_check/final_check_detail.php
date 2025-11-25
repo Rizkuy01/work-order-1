@@ -86,7 +86,7 @@ $badgeStyle = match ($status) {
                 <div class="col-md-4">
                     <?php
                     $mid = [
-                        "Section" => $data['section'],
+                        "Dept" => $data['dept'],
                         "Line" => $data['line'],
                         "Tipe Perbaikan" => $data['tipe'],
                         "Tanggal Temuan" => $data['tgl_temuan'],

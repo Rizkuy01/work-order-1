@@ -28,7 +28,7 @@ $totalData = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FR
 $totalPages = ceil($totalData / $limit);
 
 // Query utama
-$query = "SELECT * FROM work_order $where ORDER BY tgl_input ASC LIMIT $limit OFFSET $offset";
+$query = "SELECT * FROM work_order $where ORDER BY tgl_input DESC LIMIT $limit OFFSET $offset";
 $result = mysqli_query($conn, $query);
 ?>
 

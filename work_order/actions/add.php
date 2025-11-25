@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $creator    = mysqli_real_escape_string($conn, $_SESSION['nama']);
     $npk        = mysqli_real_escape_string($conn, $_SESSION['npk']);
     $initiator  = mysqli_real_escape_string($conn, $_POST['initiator']);
-    $section    = mysqli_real_escape_string($conn, $_POST['section']);
+    $section    = mysqli_real_escape_string($conn, $_POST['dept']);
     $tipe       = mysqli_real_escape_string($conn, $_POST['tipe']);
     $line       = mysqli_real_escape_string($conn, $_POST['line']);
     $nama_mesin = mysqli_real_escape_string($conn, $_POST['nama_mesin']);
@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // insert ke database
     $insert = "
         INSERT INTO work_order 
-        (creator, npk, initiator, section, tipe, line, nama_mesin, judul_wo, detail_wo, 
+        (creator, npk, initiator, dept, tipe, line, nama_mesin, judul_wo, detail_wo, 
          tgl_temuan, fotobefore, status, tgl_input, id_user_input)
         VALUES 
         ('$creator', '$npk', '$initiator', '$section', '$tipe', '$line', '$nama_mesin', 
@@ -117,9 +117,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               </div>
 
               <div class="col-md-6">
-                <label class="form-label text-danger fw-semibold">Section</label>
-                <select name="section" id="section" class="form-select" required>
-                  <option value="">-- Pilih Section --</option>
+                <label class="form-label text-danger fw-semibold">Departement</label>
+                <select name="dept" id="section" class="form-select" required>
+                  <option value="">-- Pilih Departemen --</option>
                   <?php while ($s = mysqli_fetch_assoc($q_section)) : ?>
                     <option value="<?= $s['prod'] ?>"><?= $s['prod'] ?></option>
                   <?php endwhile; ?>

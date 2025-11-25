@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   $query = "UPDATE work_order SET status = '$status' WHERE id_work_order = $id";
   if (mysqli_query($conn, $query)) {
-    echo "<script>alert('Work Order telah diubah menjadi $status');window.location='check.php';</script>";
+    echo "<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script><script>Swal.fire({icon: 'success', title: 'Berhasil!', text: 'Work Order telah diubah menjadi $status'}).then(() => { window.location='check.php'; });</script>";
   } else {
     echo "<div class='alert alert-danger'>Gagal update: " . mysqli_error($conn) . "</div>";
   }

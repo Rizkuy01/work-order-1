@@ -44,9 +44,9 @@ if ($otp == $default_otp) {
 // Jika OTP tidak valid, tampilkan pesan error yang sesuai
 if (!$is_valid) {
     if ($is_expired) {
-        echo "<script>alert('OTP sudah kadaluarsa!'); window.location='login.php';</script>";
+        echo "<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script><script>Swal.fire({icon: 'error', title: 'OTP Kadaluarsa!', text: 'Silahkan login kembali.'}).then(() => { window.location='login.php'; });</script>";
     } else {
-        echo "<script>alert('OTP SALAH!'); history.back();</script>";
+        echo "<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script><script>Swal.fire({icon: 'error', title: 'OTP Salah!', text: 'Silahkan cek kembali OTP Anda.'}).then(() => { history.back(); });</script>";
     }
     exit;
 }

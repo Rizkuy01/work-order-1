@@ -15,6 +15,11 @@ $query = mysqli_query($conn_breakdown, "
     ORDER BY machine ASC
 ");
 
+if (!$query) {
+    echo '<option value="">-- Error: ' . mysqli_error($conn_breakdown) . ' --</option>';
+    exit;
+}
+
 echo '<option value="">-- Semua Mesin --</option>';
 
 while ($row = mysqli_fetch_assoc($query)) {

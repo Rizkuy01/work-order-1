@@ -2,18 +2,23 @@
 include '../config/database.php'; 
 
 if (!isset($_POST['section']) || $_POST['section'] == '') {
-    echo '<option value="">-- Pilih Section Dulu --</option>';
+    echo '<option value="">-- Pilih Departement Dulu --</option>';
     exit;
 }
 
-$section = mysqli_real_escape_string($conn_breakdown, $_POST['section']);
+$dept = mysqli_real_escape_string($conn_breakdown, $_POST['section']);
 
 $query = mysqli_query($conn_breakdown, "
     SELECT DISTINCT linename 
     FROM mesin 
-    WHERE prod = '$section'
+    WHERE prod = '$dept'
     ORDER BY linename ASC
 ");
+
+if (!$query) {
+    echo '<option value="">-- Error: ' . mysqli_error($conn_breakdown) . ' --</option>';
+    exit;
+}
 
 echo '<option value="">-- Semua Line --</option>';
 

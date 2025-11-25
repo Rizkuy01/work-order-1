@@ -7,15 +7,20 @@ if (!isset($_POST['section']) || $_POST['section'] == '') {
     exit;
 }
 
-$section = mysqli_real_escape_string($conn_breakdown, $_POST['section']);
+$dept = mysqli_real_escape_string($conn_breakdown, $_POST['section']);
 
 // QUERY AMBIL LINE DARI DB breakdown
 $query = mysqli_query($conn_breakdown, "
     SELECT DISTINCT linename 
     FROM mesin 
-    WHERE prod = '$section'
+    WHERE prod = '$dept'
     ORDER BY linename ASC
 ");
+
+if (!$query) {
+    echo '<option value="">-- Error: ' . mysqli_error($conn_breakdown) . ' --</option>';
+    exit;
+}
 
 // Default option
 echo '<option value="">-- Pilih Line --</option>';

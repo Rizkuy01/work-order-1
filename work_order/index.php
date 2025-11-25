@@ -6,7 +6,7 @@ include '../includes/layout.php';
 // ====== FILTER DAN PENCARIAN ======
 $search = $_GET['search'] ?? '';
 $statusFilter = $_GET['status'] ?? '';
-$sectionFilter = $_GET['section'] ?? '';
+$sectionFilter = $_GET['dept'] ?? '';
 $lineFilter = $_GET['line'] ?? '';
 $mesinFilter = $_GET['mesin'] ?? '';
 $sort = $_GET['sort'] ?? 'tgl_input';
@@ -35,7 +35,7 @@ if (!empty($statusFilter)) {
 // 🔍 Filter section
 if (!empty($sectionFilter)) {
   $safeSection = mysqli_real_escape_string($conn, $sectionFilter);
-  $where .= " AND section = '$safeSection'";
+  $where .= " AND dept = '$safeSection'";
 }
 
 // 🔍 Filter line
@@ -66,7 +66,7 @@ $result = mysqli_query($conn, $query);
   <!-- ✅ Tombol di atas card -->
   <div class="d-flex justify-content-between align-items-center mb-3">
     <div>
-      <a href="export_excel.php?search=<?= urlencode($search) ?>&status=<?= urlencode($statusFilter) ?>&section=<?= urlencode($sectionFilter) ?>&line=<?= urlencode($lineFilter) ?>&mesin=<?= urlencode($mesinFilter) ?>"
+      <a href="export_excel.php?search=<?= urlencode($search) ?>&status=<?= urlencode($statusFilter) ?>&dept=<?= urlencode($sectionFilter) ?>&line=<?= urlencode($lineFilter) ?>&mesin=<?= urlencode($mesinFilter) ?>"
         class="btn btn-gradient-excel shadow-sm me-2">
         <i class="bi bi-file-earmark-excel"></i> Export Excel
       </a>
@@ -90,8 +90,8 @@ $result = mysqli_query($conn, $query);
         </div>
 
         <div class="col-md-2">
-          <select name="section" id="filterSection" class="form-select">
-            <option value="" selected>Semua Section</option>
+          <select name="dept" id="filterSection" class="form-select">
+            <option value="" selected>Semua Departement</option>
             <?php 
             $sections_list = ['PROD1', 'PROD2', 'PROD3', 'PROD4', 'PROD5', 'QA Lab'];
             foreach ($sections_list as $section_name):
