@@ -1,7 +1,9 @@
 <?php
-include '../includes/session_check.php';
+include '../includes/session_check_flexible.php';
 include '../config/database.php';
 include '../includes/layout.php';
+
+$is_guest = $_SESSION['is_guest'] ?? false;
 
 // ====== FILTER DAN PENCARIAN ======
 $search = $_GET['search'] ?? '';
@@ -90,6 +92,7 @@ $result = mysqli_query($conn, $query);
   <!-- ✅ Tombol di atas card -->
   <div class="d-flex justify-content-between align-items-center mb-3">
     <div>
+      <?php if (!$is_guest): ?>
       <a href="export_excel.php?search=<?= urlencode($search) ?>&status=<?= urlencode($statusFilter) ?>&dept=<?= urlencode($sectionFilter) ?>&line=<?= urlencode($lineFilter) ?>&mesin=<?= urlencode($mesinFilter) ?>"
         class="btn btn-gradient-excel shadow-sm me-2">
         <i class="bi bi-file-earmark-excel"></i> Export Excel
@@ -98,6 +101,7 @@ $result = mysqli_query($conn, $query);
       <a href="actions/add.php" class="btn btn-gradient-add shadow-sm">
         <i class="bi bi-plus-circle"></i> Tambah Work Order
       </a>
+      <?php endif; ?>
     </div>
   </div>
 
@@ -174,6 +178,7 @@ $result = mysqli_query($conn, $query);
                               <i class="bi bi-eye"></i>
                           </a>
 
+                          <?php if (!$is_guest): ?>
                           <a href="actions/edit.php?id=<?= $row['id_work_order'] ?>"
                             class="btn btn-sm btn-outline-warning action-btn" title="Edit">
                               <i class="bi bi-pencil-square"></i>
@@ -184,6 +189,7 @@ $result = mysqli_query($conn, $query);
                             onclick="return confirm('Yakin hapus data ini?')" title="Hapus">
                               <i class="bi bi-trash3"></i>
                           </a>
+                          <?php endif; ?>
 
                       </div>
                   </td>

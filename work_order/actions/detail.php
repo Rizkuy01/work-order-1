@@ -1,5 +1,5 @@
 <?php
-include '../../includes/session_check.php';
+include '../../includes/session_check_flexible.php';
 include '../../config/database.php';
 include '../../config/upload_config.php';
 include '../../includes/layout.php';

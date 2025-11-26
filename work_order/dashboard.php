@@ -1,9 +1,10 @@
 <?php
-include '../includes/session_check.php';
+include '../includes/session_check_flexible.php';
 include '../config/database.php';
 
 $role = $_SESSION['role'];
 $nama = $_SESSION['nama'];
+$is_guest = $_SESSION['is_guest'] ?? false;
 
 // Statistik WO
 $totalWO         = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM work_order"))['total'] ?? 0;

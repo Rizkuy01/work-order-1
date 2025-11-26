@@ -163,14 +163,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </form>
 
     <hr class="my-3">
-    
-    <p class="text-muted mb-2" style="font-size: 0.85rem;">Atau akses sebagai tamu:</p>
     <div class="d-grid gap-2">
-      <a href="../work_order/dashboard_public.php" class="btn btn-outline-info btn-sm">
+      <a href="../work_order/dashboard.php" class="btn btn-outline-secondary btn-sm">
         <i class="bi bi-bar-chart"></i> Lihat Dashboard
-      </a>
-      <a href="../work_order/index_public.php" class="btn btn-outline-secondary btn-sm">
-        <i class="bi bi-list-check"></i> Lihat Daftar Work Order
       </a>
     </div>
   </div>

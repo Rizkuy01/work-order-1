@@ -1,6 +1,7 @@
 <?php
 $current_page = basename($_SERVER['PHP_SELF']);
 $role = $_SESSION['role'] ?? '';
+$is_guest = $_SESSION['is_guest'] ?? false;
 ?>
 
 <div class="brand text-center mt-2 mb-3">
@@ -18,6 +19,9 @@ $role = $_SESSION['role'] ?? '';
       <i class="bi bi-list"></i> Data Work Order
     </a>
   </li>
+
+  <!-- Jika bukan guest, tampilkan menu sesuai role -->
+  <?php if (!$is_guest): ?>
 
   <!-- Maintenance Role -->
   <?php if (in_array($role, ['Maintenance', 'Super Administrator'])): ?>
@@ -45,6 +49,7 @@ $role = $_SESSION['role'] ?? '';
   </li>
   <?php endif; ?>
 
+  <?php endif; ?>
   <!-- Monitoring -->
   <!-- <?php if (in_array($role, ['Kepala Departemen', 'Super Administrator'])): ?>
   <li class="menu-group">
