@@ -1,9 +1,8 @@
 <?php
-include '../includes/session_check.php';
 include '../config/database.php';
 
-$role = $_SESSION['role'];
-$nama = $_SESSION['nama'];
+// No session check - allow public access
+$nama = "Pengunjung";
 
 // Statistik WO
 $totalWO         = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM work_order"))['total'] ?? 0;
@@ -29,21 +28,75 @@ while ($row = mysqli_fetch_assoc($result)) {
 $years = array_column($yearData, 'tahun');
 $totals = array_column($yearData, 'total');
 
-
 ?>
-
-<?php include '../includes/layout.php'; ?>
 
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Dashboard - Work Order</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Work Order System</title>
   <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
   <link rel="stylesheet" href="../assets/css/bootstrap-icons.css">
-  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"> -->
   <style>
-    body { background-color: #f4f6f9; font-family: 'Segoe UI', sans-serif; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #f4f6f9;
+      font-family: 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Navbar */
+    .navbar-custom {
+      background: linear-gradient(135deg, #ff4b2b, #ff416c);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 1rem 2rem;
+    }
+
+    .navbar-brand {
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: white !important;
+    }
+
+    .nav-link {
+      color: white !important;
+      margin-left: 1rem;
+      transition: 0.3s;
+    }
+
+    .nav-link:hover {
+      opacity: 0.8;
+      transform: translateY(-2px);
+    }
+
+    .btn-nav {
+      background: white;
+      color: #ff416c;
+      font-weight: 600;
+      border: none;
+      padding: 0.5rem 1.5rem;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-nav:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    /* Container */
+    .container-fluid {
+      flex: 1;
+      padding: 2rem;
+    }
 
     .card-stat {
       border: none;
@@ -55,7 +108,11 @@ $totals = array_column($yearData, 'total');
       overflow: hidden;
       transition: all 0.3s ease;
     }
-    .card-stat:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(0,0,0,0.2); }
+
+    .card-stat:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
 
     /* Gradient warna */
     .grad-total { background: linear-gradient(135deg, #567890ff, #023556ff); }
@@ -75,6 +132,18 @@ $totals = array_column($yearData, 'total');
       opacity: 0.25;
     }
 
+    .card-stat h6 {
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      opacity: 0.95;
+    }
+
+    .card-stat h2 {
+      font-size: 2.2rem;
+      font-weight: 700;
+    }
+
     .chart-card {
       background: #fff;
       border-radius: 10px;
@@ -83,53 +152,96 @@ $totals = array_column($yearData, 'total');
       height: 360px;
     }
 
-    .chart-wrapper {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 260px;
+    /* Footer */
+    .footer-custom {
+      background: #2c3e50;
+      color: white;
+      padding: 2rem;
+      text-align: center;
+      margin-top: auto;
+    }
+
+    .footer-custom p {
+      margin: 0;
+      font-size: 0.9rem;
+    }
+
+    /* Filter Section */
+    .filter-section {
+      background: white;
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    .filter-section label {
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
     }
   </style>
 </head>
 <body>
 
-<div class="container-fluid mt-4">
-  <h4 class="fw-semibold mb-3">👋 Selamat datang, <?= htmlspecialchars($nama) ?>!</h4>
-  <p class="text-muted mb-4">Berikut ringkasan aktivitas Work Order Anda di sistem.</p>
+<!-- NAVBAR -->
+<nav class="navbar-custom">
+  <div class="d-flex justify-content-between align-items-center">
+    <div class="navbar-brand">
+      <i class="bi bi-speedometer2 me-2"></i> Work Order Dashboard
+    </div>
+    <div>
+      <a href="index_public.php" class="nav-link" style="color: white; text-decoration: none; margin-right: 1rem;">
+        <i class="bi bi-list-check me-1"></i> Daftar Work Order
+      </a>
+      <a href="../auth/login.php" class="btn btn-nav">
+        <i class="bi bi-box-arrow-in-right me-1"></i> Login
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<div class="container-fluid">
+  <div style="margin-bottom: 2rem;">
+    <h3 class="fw-semibold" style="color: #2c3e50;">📊 Dashboard Work Order System</h3>
+    <p class="text-muted">Ringkasan real-time aktivitas Work Order di sistem</p>
+  </div>
 
   <!-- FILTER SECTION -->
-  <div class="row g-2 mb-4">
-    <div class="col-md-3">
-      <label class="form-label fw-semibold text-sm">Departement</label>
-      <select id="filterDashDept" class="form-select">
-        <option value="">Semua Departement</option>
-        <?php 
-        $sections_list = ['PROD1', 'PROD2', 'PROD3', 'PROD4', 'PROD5', 'QA Lab'];
-        foreach ($sections_list as $section_name):
-        ?>
-          <option value="<?= $section_name ?>"><?= $section_name ?></option>
-        <?php endforeach; ?>
-      </select>
-    </div>
+  <div class="filter-section">
+    <div class="row g-2">
+      <div class="col-md-3">
+        <label class="form-label fw-semibold">Departement</label>
+        <select id="filterDashDept" class="form-select">
+          <option value="">Semua Departement</option>
+          <option value="PROD1">PROD1</option>
+          <option value="PROD2">PROD2</option>
+          <option value="PROD3">PROD3</option>
+          <option value="PROD4">PROD4</option>
+          <option value="PROD5">PROD5</option>
+          <option value="QA Lab">QA Lab</option>
+        </select>
+      </div>
 
-    <div class="col-md-3">
-      <label class="form-label fw-semibold text-sm">Line</label>
-      <select id="filterDashLine" class="form-select">
-        <option value="">Semua Line</option>
-      </select>
-    </div>
+      <div class="col-md-3">
+        <label class="form-label fw-semibold">Line</label>
+        <select id="filterDashLine" class="form-select">
+          <option value="">Semua Line</option>
+        </select>
+      </div>
 
-    <div class="col-md-3">
-      <label class="form-label fw-semibold text-sm">Mesin</label>
-      <select id="filterDashMesin" class="form-select">
-        <option value="">Semua Mesin</option>
-      </select>
-    </div>
+      <div class="col-md-3">
+        <label class="form-label fw-semibold">Mesin</label>
+        <select id="filterDashMesin" class="form-select">
+          <option value="">Semua Mesin</option>
+        </select>
+      </div>
 
-    <div class="col-md-3 d-flex align-items-end">
-      <button id="resetDashFilter" class="btn btn-outline-secondary w-100">
-        <i class="bi bi-arrow-clockwise me-1"></i> Reset Filter
-      </button>
+      <div class="col-md-3 d-flex align-items-end">
+        <button id="resetDashFilter" class="btn btn-outline-secondary w-100">
+          <i class="bi bi-arrow-clockwise me-1"></i> Reset Filter
+        </button>
+      </div>
     </div>
   </div>
 
@@ -217,28 +329,23 @@ $totals = array_column($yearData, 'total');
   </div>
 </div>
 
+<!-- FOOTER -->
+<div class="footer-custom">
+  <p>&copy; 2025 Work Order System - KYB Indonesia. All rights reserved.</p>
+</div>
+
 <script src="../assets/js/bootstrap.bundle.min.js"></script>
 <script src="../assets/js/chart.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-// Fallback jika Chart.js tidak tersedia
-if (typeof Chart === 'undefined') {
-  console.warn('Chart.js tidak tersedia. Silakan pastikan koneksi internet aktif atau download Chart.js lokal.');
-  document.querySelectorAll('.chart-card').forEach(el => {
-    el.innerHTML = '<p class="text-danger">Chart tidak dapat dimuat. Periksa koneksi internet Anda.</p>';
-  });
-}
-</script>
 <script>
 // Global chart instances
 let barChartInstance = null;
 let pieChartInstance = null;
 
-// 📊 Ambil data WO per tahun dari PHP
+// Initial data
 let yearLabels = <?= json_encode($years) ?>;
 let yearTotals = <?= json_encode($totals) ?>;
 
-// 📊 Data untuk Distribusi per Status
 const statusLabels = [
   'Waiting Schedule', 
   'Waiting Approval', 
@@ -260,16 +367,10 @@ let statusData = [
 ];
 
 const colors = [
-  '#f1c40f',
-  '#9b59b6',
-  '#7f8c8d',
-  '#e67e22',
-  '#086bff',
-  '#27ae60',
-  '#e74c3c'
+  '#f1c40f', '#9b59b6', '#7f8c8d', '#e67e22',
+  '#086bff', '#27ae60', '#e74c3c'
 ];
 
-// 🎨 Warna gradasi untuk bar chart
 function createGradient(ctx, area) {
   const gradient = ctx.createLinearGradient(0, area.bottom, 0, area.top);
   gradient.addColorStop(0, '#ff4b2b');
@@ -277,7 +378,6 @@ function createGradient(ctx, area) {
   return gradient;
 }
 
-// 🎬 Animasi fade-in sederhana untuk chart container
 document.querySelectorAll('.chart-card').forEach(el => {
   el.style.opacity = '0';
   el.style.transition = 'opacity 1s ease';
@@ -289,11 +389,8 @@ window.addEventListener('load', () => {
   }, 250);
 });
 
-// Function untuk create atau update bar chart
 function createBarChart(labels, data) {
-  if (barChartInstance) {
-    barChartInstance.destroy();
-  }
+  if (barChartInstance) barChartInstance.destroy();
   
   barChartInstance = new Chart(document.getElementById('barChart'), {
     type: 'bar',
@@ -318,41 +415,19 @@ function createBarChart(labels, data) {
       layout: { padding: { top: 10, right: 10, bottom: 10, left: 10 } },
       plugins: {
         legend: { display: false },
-        tooltip: {
-          backgroundColor: '#2c3e50',
-          titleFont: { weight: 'bold' },
-          cornerRadius: 8
-        }
+        tooltip: { backgroundColor: '#2c3e50', titleFont: { weight: 'bold' }, cornerRadius: 8 }
       },
       scales: {
-        y: {
-          beginAtZero: true,
-          grid: { color: '#ececec' },
-          ticks: { font: { size: 12 } },
-          suggestedMax: Math.max(...data, 0) * 1.1
-        },
-        x: {
-          grid: { display: false },
-          ticks: {
-            font: { size: 12 },
-            maxRotation: 40,
-            minRotation: 20
-          }
-        }
+        y: { beginAtZero: true, grid: { color: '#ececec' }, ticks: { font: { size: 12 } }, suggestedMax: Math.max(...data, 0) * 1.1 },
+        x: { grid: { display: false }, ticks: { font: { size: 12 }, maxRotation: 40, minRotation: 20 } }
       },
-      animation: {
-        duration: 1200,
-        easing: 'easeOutQuart'
-      }
+      animation: { duration: 1200, easing: 'easeOutQuart' }
     }
   });
 }
 
-// Function untuk create atau update pie chart
 function createPieChart(labels, data) {
-  if (pieChartInstance) {
-    pieChartInstance.destroy();
-  }
+  if (pieChartInstance) pieChartInstance.destroy();
   
   pieChartInstance = new Chart(document.getElementById('pieChart'), {
     type: 'bar',
@@ -372,77 +447,48 @@ function createPieChart(labels, data) {
       layout: { padding: { top: 10, right: 10, bottom: 10, left: 10 } },
       plugins: {
         legend: { display: false },
-        tooltip: {
-          backgroundColor: '#2c3e50',
-          titleFont: { weight: 'bold' },
-          cornerRadius: 8
-        }
+        tooltip: { backgroundColor: '#2c3e50', titleFont: { weight: 'bold' }, cornerRadius: 8 }
       },
       scales: {
-        y: {
-          beginAtZero: true,
-          grid: { color: '#ececec' },
-          ticks: { font: { size: 12 } },
-          suggestedMax: Math.max(...data, 0) * 1.1
-        },
-        x: {
-          grid: { display: false },
-          ticks: {
-            font: { size: 12 },
-            maxRotation: 45,
-            minRotation: 0
-          }
-        }
+        y: { beginAtZero: true, grid: { color: '#ececec' }, ticks: { font: { size: 12 } }, suggestedMax: Math.max(...data, 0) * 1.1 },
+        x: { grid: { display: false }, ticks: { font: { size: 12 }, maxRotation: 45, minRotation: 0 } }
       },
       responsive: true,
       maintainAspectRatio: true,
-      animation: {
-        duration: 1200,
-        easing: 'easeOutQuart'
-      }
+      animation: { duration: 1200, easing: 'easeOutQuart' }
     }
   });
 }
 
-// Initial chart creation
 createBarChart(yearLabels, yearTotals);
 createPieChart(statusLabels, statusData);
-</script>
 
-<script>
 // AJAX Filter Handler
 $(document).ready(function() {
-  // Load line saat department dipilih
   $("#filterDashDept").change(function() {
     var dept = $(this).val();
-    
     if (dept == '') {
       $("#filterDashLine").html('<option value="">Semua Line</option>');
       $("#filterDashMesin").html('<option value="">Semua Mesin</option>');
       return;
     }
-
     $.post("filter_line.php", { section: dept }, function(data) {
       $("#filterDashLine").html(data);
       $("#filterDashMesin").html('<option value="">Semua Mesin</option>');
     });
   });
 
-  // Load mesin saat line dipilih
   $("#filterDashLine").change(function() {
     var line = $(this).val();
-    
     if (line == '') {
       $("#filterDashMesin").html('<option value="">Semua Mesin</option>');
       return;
     }
-
     $.post("filter_mesin.php", { line: line }, function(data) {
       $("#filterDashMesin").html(data);
     });
   });
 
-  // Update data saat ada filter yang berubah
   function updateDashboard() {
     var dept = $("#filterDashDept").val();
     var line = $("#filterDashLine").val();
@@ -453,7 +499,6 @@ $(document).ready(function() {
       line: line,
       mesin: mesin
     }, function(response) {
-      // Update card stats
       updateCardValue('countTotal', response.totalWO);
       updateCardValue('countWaiting', response.woWaiting);
       updateCardValue('countApproval', response.woApproval);
@@ -463,7 +508,6 @@ $(document).ready(function() {
       updateCardValue('countFinish', response.woFinish);
       updateCardValue('countReject', response.woReject);
 
-      // Update charts
       yearLabels = response.yearLabels;
       yearTotals = response.yearTotals;
       statusData = response.statusData;
@@ -471,12 +515,10 @@ $(document).ready(function() {
       createBarChart(yearLabels, yearTotals);
       createPieChart(statusLabels, statusData);
 
-      // Animate counters
       animateCounters(1000);
     }, 'json');
   }
 
-  // Event listeners untuk filter
   $("#filterDashDept").on("change", function() {
     setTimeout(updateDashboard, 300);
   });
@@ -489,7 +531,6 @@ $(document).ready(function() {
     updateDashboard();
   });
 
-  // Reset filter
   $("#resetDashFilter").click(function() {
     $("#filterDashDept").val('');
     $("#filterDashLine").html('<option value="">Semua Line</option>');
@@ -498,7 +539,6 @@ $(document).ready(function() {
   });
 });
 
-// Update card value dengan animasi
 function updateCardValue(elementId, newValue) {
   const element = document.getElementById(elementId);
   if (element) {
@@ -507,14 +547,12 @@ function updateCardValue(elementId, newValue) {
   }
 }
 
-// Animated counter for stat cards
 function animateCounters(duration = 1000) {
   const counters = document.querySelectorAll('.count');
   if (!counters.length) return;
 
   counters.forEach(el => {
     const target = parseInt(el.getAttribute('data-target') || '0', 10);
-    // Reset to 0 immediately (helps visual start)
     el.textContent = '0';
 
     const start = 0;
@@ -535,14 +573,10 @@ function animateCounters(duration = 1000) {
   });
 }
 
-// Run animation on window load (after charts animate)
-window.addEventListener('load', function () {
-  // small delay so user sees card entry animation first
+window.addEventListener('load', function() {
   setTimeout(() => animateCounters(1400), 200);
 });
 </script>
 
 </body>
 </html>
-
-<?php include '../includes/footer.php'; ?>

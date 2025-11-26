@@ -1,7 +1,6 @@
 <?php
-include '../includes/session_check.php';
+// No session check - allow public access
 include '../config/database.php';
-include '../includes/layout.php';
 
 // ====== FILTER DAN PENCARIAN ======
 $search = $_GET['search'] ?? '';
@@ -80,29 +79,182 @@ $totalPages = ceil($totalRows / $limit);
 $query = "SELECT * FROM work_order $where ORDER BY $sort $order LIMIT $limit OFFSET $offset";
 $result = mysqli_query($conn, $query);
 
-// Debug - uncomment untuk lihat query
-// echo "<!-- Query: $query -->";
-// echo "<!-- Where: $where -->";
+// Function untuk safe output
+function safe($value) {
+  return htmlspecialchars($value ?? '', ENT_QUOTES, 'UTF-8');
+}
 ?>
 
-<div class="container-fluid px-4 mt-4">
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daftar Work Order - Work Order System</title>
+  <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+  <link rel="stylesheet" href="../assets/css/bootstrap-icons.css">
+  <style>
+    body {
+      background-color: #f4f6f9;
+      font-family: 'Segoe UI', sans-serif;
+    }
 
-  <!-- ✅ Tombol di atas card -->
-  <div class="d-flex justify-content-between align-items-center mb-3">
+    /* Navbar */
+    .navbar-custom {
+      background: linear-gradient(135deg, #ff4b2b, #ff416c);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 1rem 2rem;
+    }
+
+    .navbar-brand {
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: white !important;
+    }
+
+    .nav-link {
+      color: white !important;
+      margin-left: 1rem;
+      transition: 0.3s;
+    }
+
+    .nav-link:hover {
+      opacity: 0.8;
+      transform: translateY(-2px);
+    }
+
+    .btn-nav {
+      background: white;
+      color: #ff416c;
+      font-weight: 600;
+      border: none;
+      padding: 0.5rem 1.5rem;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-nav:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .card {
+      border-radius: 12px;
+      border: none;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, #ff4b2b, #ff416c);
+      color: white;
+      border: none;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
+    }
+
+    .table-hover tbody tr:hover {
+      background-color: #f8f9ff;
+    }
+
+    .badge {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .badge:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .btn-gradient-view {
+      background: linear-gradient(135deg, #007bff, #0056b3);
+      color: white;
+      border: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-gradient-view:hover {
+      background: linear-gradient(135deg, #0056b3, #003d82);
+      transform: translateY(-2px);
+    }
+
+    .action-btn {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 !important;
+      border-radius: 8px;
+    }
+
+    .pagination .page-link {
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-weight: 500;
+      color: #ff416c;
+    }
+
+    .pagination .page-item.active .page-link {
+      background-color: #ff416c;
+      border-color: #ff416c;
+      color: white;
+    }
+
+    .pagination .page-item.disabled .page-link {
+      color: #aaa;
+      background-color: #f5f5f5;
+      pointer-events: none;
+    }
+
+    /* Footer */
+    .footer-custom {
+      background: #2c3e50;
+      color: white;
+      padding: 2rem;
+      text-align: center;
+      margin-top: 3rem;
+    }
+
+    .footer-custom p {
+      margin: 0;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar-custom">
+  <div class="d-flex justify-content-between align-items-center">
+    <div class="navbar-brand">
+      <i class="bi bi-list-check me-2"></i> Work Order List
+    </div>
     <div>
-      <a href="export_excel.php?search=<?= urlencode($search) ?>&status=<?= urlencode($statusFilter) ?>&dept=<?= urlencode($sectionFilter) ?>&line=<?= urlencode($lineFilter) ?>&mesin=<?= urlencode($mesinFilter) ?>"
-        class="btn btn-gradient-excel shadow-sm me-2">
-        <i class="bi bi-file-earmark-excel"></i> Export Excel
+      <a href="dashboard_public.php" class="nav-link" style="color: white; text-decoration: none; margin-right: 1rem;">
+        <i class="bi bi-bar-chart me-1"></i> Dashboard
       </a>
-
-      <a href="actions/add.php" class="btn btn-gradient-add shadow-sm">
-        <i class="bi bi-plus-circle"></i> Tambah Work Order
+      <a href="../auth/login.php" class="btn btn-nav">
+        <i class="bi bi-box-arrow-in-right me-1"></i> Login
       </a>
     </div>
   </div>
+</nav>
 
-  <div class="card shadow border-0">
-    <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+<!-- MAIN CONTENT -->
+<div class="container-fluid px-4 mt-4 mb-5">
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h4 class="fw-bold" style="color: #2c3e50;">📋 Daftar Work Order</h4>
+      <p class="text-muted">Total data: <strong><?= $totalRows ?></strong> work order</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
       <h5 class="mb-0"><i class="bi bi-list-task me-2"></i> Daftar Work Order</h5>
     </div>
 
@@ -110,7 +262,7 @@ $result = mysqli_query($conn, $query);
       <!-- 🔎 Filter Button dan Search -->
       <form method="GET" class="row g-2 mb-3">
         <div class="col-md-6">
-          <input type="text" name="search" value="<?= htmlspecialchars($search) ?>" class="form-control" placeholder="Cari judul WO atau nama mesin...">
+          <input type="text" name="search" value="<?= safe($search) ?>" class="form-control" placeholder="Cari judul WO atau nama mesin...">
         </div>
 
         <div class="col-md-6 d-flex gap-2">
@@ -119,13 +271,13 @@ $result = mysqli_query($conn, $query);
           </button>
           
           <!-- Hidden inputs untuk menyimpan filter -->
-          <input type="hidden" name="dept" id="hiddenDept" value="<?= htmlspecialchars($sectionFilter) ?>">
-          <input type="hidden" name="line" id="hiddenLine" value="<?= htmlspecialchars($lineFilter) ?>">
-          <input type="hidden" name="mesin" id="hiddenMesin" value="<?= htmlspecialchars($mesinFilter) ?>">
-          <input type="hidden" name="status" id="hiddenStatus" value="<?= htmlspecialchars($statusFilter) ?>">
-          <input type="hidden" name="tipe" id="hiddenTipe" value="<?= htmlspecialchars($tipeFilter) ?>">
-          <input type="hidden" name="from_date" id="hiddenFromDate" value="<?= htmlspecialchars($fromDate) ?>">
-          <input type="hidden" name="to_date" id="hiddenToDate" value="<?= htmlspecialchars($toDate) ?>">
+          <input type="hidden" name="dept" id="hiddenDept" value="<?= safe($sectionFilter) ?>">
+          <input type="hidden" name="line" id="hiddenLine" value="<?= safe($lineFilter) ?>">
+          <input type="hidden" name="mesin" id="hiddenMesin" value="<?= safe($mesinFilter) ?>">
+          <input type="hidden" name="status" id="hiddenStatus" value="<?= safe($statusFilter) ?>">
+          <input type="hidden" name="tipe" id="hiddenTipe" value="<?= safe($tipeFilter) ?>">
+          <input type="hidden" name="from_date" id="hiddenFromDate" value="<?= safe($fromDate) ?>">
+          <input type="hidden" name="to_date" id="hiddenToDate" value="<?= safe($toDate) ?>">
         </div>
       </form>
 
@@ -134,9 +286,9 @@ $result = mysqli_query($conn, $query);
         <table class="table table-hover align-middle text-center">
           <thead class="table-light">
             <tr>
-              <th><a href="?sort=nama_mesin&order=<?= $order == 'ASC' ? 'DESC' : 'ASC' ?>">Nama Mesin</a></th>
-              <th><a href="?sort=judul_wo&order=<?= $order == 'ASC' ? 'DESC' : 'ASC' ?>">Judul WO</a></th>
-              <th><a href="?sort=tgl_input&order=<?= $order == 'ASC' ? 'DESC' : 'ASC' ?>">Tanggal Input</a></th>
+              <th><a href="?sort=nama_mesin&order=<?= $order == 'ASC' ? 'DESC' : 'ASC' ?>" class="text-decoration-none text-dark">Nama Mesin</a></th>
+              <th><a href="?sort=judul_wo&order=<?= $order == 'ASC' ? 'DESC' : 'ASC' ?>" class="text-decoration-none text-dark">Judul WO</a></th>
+              <th><a href="?sort=tgl_input&order=<?= $order == 'ASC' ? 'DESC' : 'ASC' ?>" class="text-decoration-none text-dark">Tanggal Input</a></th>
               <th>Status</th>
               <th width="120">Aksi</th>
             </tr>
@@ -145,12 +297,12 @@ $result = mysqli_query($conn, $query);
             <?php if (mysqli_num_rows($result) > 0): ?>
               <?php while ($row = mysqli_fetch_assoc($result)): ?>
                 <tr>
-                  <td class="fw-semibold"><?= htmlspecialchars($row['nama_mesin']) ?></td>
-                  <td><?= htmlspecialchars($row['judul_wo']) ?></td>
+                  <td class="fw-semibold"><?= safe($row['nama_mesin']) ?></td>
+                  <td><?= safe($row['judul_wo']) ?></td>
                   <td><?= date('d M Y', strtotime($row['tgl_input'])) ?></td>
                   <td>
                     <?php
-                      $status = htmlspecialchars($row['status']);
+                      $status = safe($row['status']);
                       $badgeStyle = match($status) {
                         'WAITING SCHEDULE' => 'background: linear-gradient(135deg, #f1c40f, #f39c12); color: white;',
                         'WAITING APPROVAL' => 'background: linear-gradient(135deg, #e39eff, #8e44ad); color: white;',
@@ -163,28 +315,15 @@ $result = mysqli_query($conn, $query);
                       };
                     ?>
                     <span class="badge px-3 py-2 fw-semibold" style="<?= $badgeStyle ?> box-shadow: 0 2px 4px rgba(0,0,0,0.15); border-radius: 8px;">
-                      <?= strtoupper($status) ?>
+                      <?= $status ?>
                     </span>
                   </td>
                   <td>
                       <div class="d-flex justify-content-center gap-2">
-
                           <a href="actions/detail.php?id=<?= $row['id_work_order'] ?>"
                             class="btn btn-sm btn-outline-primary action-btn" title="Detail">
                               <i class="bi bi-eye"></i>
                           </a>
-
-                          <a href="actions/edit.php?id=<?= $row['id_work_order'] ?>"
-                            class="btn btn-sm btn-outline-warning action-btn" title="Edit">
-                              <i class="bi bi-pencil-square"></i>
-                          </a>
-
-                          <a href="actions/delete.php?id=<?= $row['id_work_order'] ?>"
-                            class="btn btn-sm btn-outline-danger action-btn"
-                            onclick="return confirm('Yakin hapus data ini?')" title="Hapus">
-                              <i class="bi bi-trash3"></i>
-                          </a>
-
                       </div>
                   </td>
                 </tr>
@@ -202,7 +341,7 @@ $result = mysqli_query($conn, $query);
         <ul class="pagination pagination-sm mb-0">
           <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
             <a class="page-link"
-              href="?page=<?= max(1, $page - 1) ?>&search=<?= urlencode($search) ?>&status=<?= urlencode($statusFilter) ?>&section=<?= urlencode($sectionFilter) ?>&line=<?= urlencode($lineFilter) ?>&mesin=<?= urlencode($mesinFilter) ?>&sort=<?= $sort ?>&order=<?= $order ?>">
+              href="?page=<?= max(1, $page - 1) ?>&search=<?= urlencode($search) ?>&status=<?= urlencode($statusFilter) ?>&dept=<?= urlencode($sectionFilter) ?>&line=<?= urlencode($lineFilter) ?>&mesin=<?= urlencode($mesinFilter) ?>&sort=<?= $sort ?>&order=<?= $order ?>">
               &laquo; Prev
             </a>
           </li>
@@ -214,7 +353,7 @@ $result = mysqli_query($conn, $query);
           ?>
             <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
               <a class="page-link"
-                href="?page=<?= $i ?>&search=<?= urlencode($search) ?>&status=<?= urlencode($statusFilter) ?>&section=<?= urlencode($sectionFilter) ?>&line=<?= urlencode($lineFilter) ?>&mesin=<?= urlencode($mesinFilter) ?>&sort=<?= $sort ?>&order=<?= $order ?>">
+                href="?page=<?= $i ?>&search=<?= urlencode($search) ?>&status=<?= urlencode($statusFilter) ?>&dept=<?= urlencode($sectionFilter) ?>&line=<?= urlencode($lineFilter) ?>&mesin=<?= urlencode($mesinFilter) ?>&sort=<?= $sort ?>&order=<?= $order ?>">
                 <?= $i ?>
               </a>
             </li>
@@ -222,7 +361,7 @@ $result = mysqli_query($conn, $query);
 
           <li class="page-item <?= ($page >= $totalPages) ? 'disabled' : '' ?>">
             <a class="page-link"
-              href="?page=<?= min($totalPages, $page + 1) ?>&search=<?= urlencode($search) ?>&status=<?= urlencode($statusFilter) ?>&section=<?= urlencode($sectionFilter) ?>&line=<?= urlencode($lineFilter) ?>&mesin=<?= urlencode($mesinFilter) ?>&sort=<?= $sort ?>&order=<?= $order ?>">
+              href="?page=<?= min($totalPages, $page + 1) ?>&search=<?= urlencode($search) ?>&status=<?= urlencode($statusFilter) ?>&dept=<?= urlencode($sectionFilter) ?>&line=<?= urlencode($lineFilter) ?>&mesin=<?= urlencode($mesinFilter) ?>&sort=<?= $sort ?>&order=<?= $order ?>">
               Next &raquo;
             </a>
           </li>
@@ -310,13 +449,13 @@ $result = mysqli_query($conn, $query);
             <!-- Filter Tanggal Mulai -->
             <div class="col-md-6">
               <label for="modalFromDate" class="form-label fw-semibold">Dari Tanggal</label>
-              <input type="date" id="modalFromDate" class="form-control" value="<?= htmlspecialchars($fromDate) ?>">
+              <input type="date" id="modalFromDate" class="form-control" value="<?= safe($fromDate) ?>">
             </div>
 
             <!-- Filter Tanggal Akhir -->
             <div class="col-md-6">
               <label for="modalToDate" class="form-label fw-semibold">Sampai Tanggal</label>
-              <input type="date" id="modalToDate" class="form-control" value="<?= htmlspecialchars($toDate) ?>">
+              <input type="date" id="modalToDate" class="form-control" value="<?= safe($toDate) ?>">
             </div>
           </div>
         </form>
@@ -337,95 +476,13 @@ $result = mysqli_query($conn, $query);
   </div>
 </div>
 
+<!-- FOOTER -->
+<div class="footer-custom">
+  <p>&copy; 2025 Work Order System - KYB Indonesia. All rights reserved.</p>
+</div>
 
-
-<style>
-  .card { border-radius: 12px; }
-  .card-header { border-top-left-radius: 12px; border-top-right-radius: 12px; }
-  .table th a { color: inherit; text-decoration: none; }
-  .table th a:hover { color: #dc3545; }
-  .table-hover tbody tr:hover { background-color: #f8f9ff; }
-  .badge { transition: transform 0.2s ease, box-shadow 0.2s ease; }
-  .badge:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-  .pagination .page-link {
-    border-radius: 6px; padding: 6px 12px;
-    font-weight: 500; color: #dc3545;
-  }
-  .pagination .page-item.active .page-link {
-    background-color: #dc3545; border-color: #dc3545; color: white;
-  }
-  .pagination .page-item.disabled .page-link {
-    color: #aaa; background-color: #f5f5f5; pointer-events: none;
-  }
-  .card-header {
-    background: linear-gradient(135deg, #ff4b2b, #ff416c);
-    color: white;
-    border: none;
-    font-weight: 600;
-    letter-spacing: 0.3px;
-    box-shadow: 0 3px 6px rgba(255, 65, 108, 0.3);
-  }
-
-  /* Hover/efek kecil kalau mau nanti pakai tombol di header */
-  .card-header:hover {
-    background: linear-gradient(135deg, #ff6b81, #ff1e56);
-  }
-
-  /* Ikon di dalam header */
-  .card-header i {
-    margin-right: 6px;
-  }
-
-
-  /* 🌈 Tombol Gradasi Export Excel */
-  .btn-gradient-excel {
-    background: linear-gradient(135deg, #28a745, #20c997);
-    color: white;
-    border: none;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    box-shadow: 0 3px 6px rgba(40, 167, 69, 0.3);
-  }
-  .btn-gradient-excel:hover {
-    background: linear-gradient(135deg, #20c997, #198754);
-    transform: translateY(-2px);
-    box-shadow: 0 5px 10px rgba(25, 135, 84, 0.4);
-  }
-
-  /* 🌈 Tombol Gradasi Tambah Work Order */
-  .btn-gradient-add {
-    background: linear-gradient(135deg, #ff4b2b, #ff416c);
-    color: white;
-    border: none;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    box-shadow: 0 3px 6px rgba(255, 65, 108, 0.3);
-  }
-  .btn-gradient-add:hover {
-    background: linear-gradient(135deg, #ff6b81, #ff1e56);
-    transform: translateY(-2px);
-    box-shadow: 0 5px 10px rgba(255, 30, 86, 0.4);
-  }
-
-  /* 🪶 Efek tombol biar lebih rapi */
-  .btn-gradient-excel i,
-  .btn-gradient-add i {
-    margin-right: 6px;
-  }
-  .action-btn {
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 !important;
-    border-radius: 8px;
-  }
-</style>
-
-<!-- AJAX UNTUK FILTER LINE & MESIN -->
+<script src="../assets/js/bootstrap.bundle.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 $(document).ready(function () {
     // Load line saat department dipilih di modal
@@ -465,13 +522,13 @@ $(document).ready(function () {
             $.post("filter_line.php", { section: section }, function (data) {
                 $("#modalLine").html(data);
                 
-                var line = '<?= htmlspecialchars($lineFilter) ?>';
+                var line = '<?= safe($lineFilter) ?>';
                 if (line != '') {
                     $("#modalLine").val(line);
                     
                     $.post("filter_mesin.php", { line: line }, function (data2) {
                         $("#modalMesin").html(data2);
-                        var mesin = '<?= htmlspecialchars($mesinFilter) ?>';
+                        var mesin = '<?= safe($mesinFilter) ?>';
                         if (mesin != '') {
                             $("#modalMesin").val(mesin);
                         }
@@ -552,5 +609,5 @@ $(document).ready(function () {
 });
 </script>
 
-<?php include '../includes/footer.php'; ?>
-
+</body>
+</html>
