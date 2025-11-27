@@ -1,6 +1,6 @@
 <?php
 session_start();
-include '../config/database.php'; // ada: $conn_lembur, $conn_isd, $conn(work_order)
+include '../config/database.php'; 
 
 $error = '';
 
@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
 
         // ============================
-        // GET USER DARI ct_users (DB lembur1)
+        // GET USER DARI ct_users
         // ============================
         $q = "
             SELECT *
@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $user = mysqli_fetch_assoc($result);
 
             // ============================
-            // VERIFIKASI PASSWORD (kolom = pwd)
+            // VERIFIKASI PASSWORD 
             // ============================
             if (password_verify($password, $user['pwd'])) {
 
@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 // ============================
-                // SAVE SESSION SEMENTARA (OTP BELUM VERIFIED)
+                // SAVE SESSION SEMENTARA
                 // ============================
                 $_SESSION['pending_npk']     = $user['npk'];
                 $_SESSION['pending_nama']    = $user['full_name'];

@@ -82,9 +82,14 @@ $totalPages = ceil($totalRows / $limit);
 $query = "SELECT * FROM work_order $where ORDER BY $sort $order LIMIT $limit OFFSET $offset";
 $result = mysqli_query($conn, $query);
 
-// Debug - uncomment untuk lihat query
-// echo "<!-- Query: $query -->";
-// echo "<!-- Where: $where -->";
+// Ambil daftar departement dari database
+$depts = [];
+$deptResult = mysqli_query($conn, "SELECT DISTINCT dept FROM work_order WHERE dept IS NOT NULL AND dept != '' ORDER BY dept ASC");
+if ($deptResult) {
+  while ($row = mysqli_fetch_assoc($deptResult)) {
+    $depts[] = $row['dept'];
+  }
+}
 ?>
 
 <div class="container-fluid px-4 mt-4">
@@ -259,10 +264,9 @@ $result = mysqli_query($conn, $query);
               <select id="modalDept" class="form-select">
                 <option value="">Semua Departement</option>
                 <?php 
-                $sections_list = ['PROD1', 'PROD2', 'PROD3', 'PROD4', 'PROD5', 'QA Lab'];
-                foreach ($sections_list as $section_name):
+                foreach ($depts as $dept_name):
                 ?>
-                  <option value="<?= $section_name ?>" <?= $sectionFilter == $section_name ? 'selected' : '' ?>><?= $section_name ?></option>
+                  <option value="<?= htmlspecialchars($dept_name) ?>" <?= $sectionFilter == $dept_name ? 'selected' : '' ?>><?= htmlspecialchars($dept_name) ?></option>
                 <?php endforeach; ?>
               </select>
             </div>

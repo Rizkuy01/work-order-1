@@ -5,7 +5,7 @@ include '../config/database.php';
 // Ambil filter dari POST
 $dept = $_POST['dept'] ?? '';
 $line = $_POST['line'] ?? '';
-$mesin = $_POST['mesin'] ?? '';
+$tipe = $_POST['tipe'] ?? '';
 
 // Build WHERE clause
 $where = "WHERE 1=1";
@@ -20,9 +20,9 @@ if (!empty($line)) {
     $where .= " AND line = '$safeLine'";
 }
 
-if (!empty($mesin)) {
-    $safeMesin = mysqli_real_escape_string($conn, $mesin);
-    $where .= " AND nama_mesin = '$safeMesin'";
+if (!empty($tipe)) {
+    $safeTipe = mysqli_real_escape_string($conn, $tipe);
+    $where .= " AND tipe = '$safeTipe'";
 }
 
 // Ambil statistik WO

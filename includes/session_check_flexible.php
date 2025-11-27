@@ -15,5 +15,10 @@ if (!isset($_SESSION['npk']) || !isset($_SESSION['role'])) {
     $_SESSION['nama'] = 'Guest User';
     $_SESSION['role'] = 'Guest';
     $_SESSION['is_guest'] = true;
+} else {
+    // User sudah login
+    if (!isset($_SESSION['is_guest'])) {
+        $_SESSION['is_guest'] = false;
+    }
 }
 ?>

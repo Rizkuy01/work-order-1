@@ -30,6 +30,14 @@ while ($row = mysqli_fetch_assoc($result)) {
 $years = array_column($yearData, 'tahun');
 $totals = array_column($yearData, 'total');
 
+// Ambil daftar departement dari database
+$depts = [];
+$deptResult = mysqli_query($conn, "SELECT DISTINCT dept FROM work_order WHERE dept IS NOT NULL AND dept != '' ORDER BY dept ASC");
+if ($deptResult) {
+  while ($row = mysqli_fetch_assoc($deptResult)) {
+    $depts[] = $row['dept'];
+  }
+}
 
 ?>
 
@@ -42,7 +50,6 @@ $totals = array_column($yearData, 'total');
   <title>Dashboard - Work Order</title>
   <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
   <link rel="stylesheet" href="../assets/css/bootstrap-icons.css">
-  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"> -->
   <style>
     body { background-color: #f4f6f9; font-family: 'Segoe UI', sans-serif; }
 
@@ -105,10 +112,9 @@ $totals = array_column($yearData, 'total');
       <select id="filterDashDept" class="form-select">
         <option value="">Semua Departement</option>
         <?php 
-        $sections_list = ['PROD1', 'PROD2', 'PROD3', 'PROD4', 'PROD5', 'QA Lab'];
-        foreach ($sections_list as $section_name):
+        foreach ($depts as $dept_name):
         ?>
-          <option value="<?= $section_name ?>"><?= $section_name ?></option>
+          <option value="<?= htmlspecialchars($dept_name) ?>"><?= htmlspecialchars($dept_name) ?></option>
         <?php endforeach; ?>
       </select>
     </div>
@@ -121,9 +127,16 @@ $totals = array_column($yearData, 'total');
     </div>
 
     <div class="col-md-3">
-      <label class="form-label fw-semibold text-sm">Mesin</label>
-      <select id="filterDashMesin" class="form-select">
-        <option value="">Semua Mesin</option>
+      <label class="form-label fw-semibold text-sm">Tipe Perbaikan</label>
+      <select id="filterDashTipe" class="form-select">
+        <option value="">Semua Tipe</option>
+        <option value="Repair">Repair</option>
+        <option value="Improve">Improve</option>
+        <option value="Predictive">Predictive</option>
+        <option value="Preventive">Preventive</option>
+        <option value="DCM">DCM</option>
+        <option value="Blue Tag">Blue Tag</option>
+        <option value="Red Tag">Red Tag</option>
       </select>
     </div>
 
@@ -429,30 +442,21 @@ $(document).ready(function() {
     });
   });
 
-  // Load mesin saat line dipilih
-  $("#filterDashLine").change(function() {
-    var line = $(this).val();
-    
-    if (line == '') {
-      $("#filterDashMesin").html('<option value="">Semua Mesin</option>');
-      return;
-    }
-
-    $.post("filter_mesin.php", { line: line }, function(data) {
-      $("#filterDashMesin").html(data);
-    });
+  // Tipe perbaikan tidak perlu cascade, langsung update dashboard
+  $("#filterDashTipe").change(function() {
+    updateDashboard();
   });
 
   // Update data saat ada filter yang berubah
   function updateDashboard() {
     var dept = $("#filterDashDept").val();
     var line = $("#filterDashLine").val();
-    var mesin = $("#filterDashMesin").val();
+    var tipe = $("#filterDashTipe").val();
 
     $.post("get_dashboard_data.php", {
       dept: dept,
       line: line,
-      mesin: mesin
+      tipe: tipe
     }, function(response) {
       // Update card stats
       updateCardValue('countTotal', response.totalWO);
@@ -494,7 +498,7 @@ $(document).ready(function() {
   $("#resetDashFilter").click(function() {
     $("#filterDashDept").val('');
     $("#filterDashLine").html('<option value="">Semua Line</option>');
-    $("#filterDashMesin").html('<option value="">Semua Mesin</option>');
+    $("#filterDashTipe").val('');
     updateDashboard();
   });
 });
