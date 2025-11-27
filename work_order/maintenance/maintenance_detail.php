@@ -76,11 +76,11 @@ $badgeStyle = match($status) {
       <input type="hidden" name="id" value="<?= $row['id_work_order'] ?>">
       <?php if ($row['status'] == 'OPENED'): ?>
         <button type="button" class="btn btn-warning text-white fw-semibold" onclick="startWO(<?= $row['id_work_order'] ?>)">
-            <i class="fa-solid fa-play me-1"></i> Mulai
+            <i class="bi bi-play-fill me-1"></i> Mulai
         </button>
       <?php elseif ($row['status'] == 'ON PROGRESS'): ?>
         <button type="button" class="btn btn-success text-white fw-semibold" onclick="finishWO(<?= $row['id_work_order'] ?>)">
-            <i class="fa-solid fa-check me-1"></i> Selesai
+            <i class="bi bi-check-lg me-1"></i> Selesai
         </button>
       <?php endif; ?>
     </form>

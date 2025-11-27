@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="col-lg-8">
       <div class="card shadow border-0">
         <div class="card-header bg-danger-gradient text-white fw-semibold">
-          <i class="fa-solid fa-pen-to-square me-2"></i> Edit Work Order
+          <i class="bi bi-pencil-square me-2"></i> Edit Work Order
         </div>
 
         <div class="card-body p-4">
@@ -156,7 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="text-end mt-4">
               <button type="submit" class="btn btn-danger text-white px-4 fw-semibold">
-                <i class="fa-solid fa-save me-1"></i> Simpan
+                <i class="bi bi-save me-1"></i> Simpan
               </button>
             </div>
 

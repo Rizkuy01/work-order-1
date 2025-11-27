@@ -51,7 +51,7 @@ $result = mysqli_query($conn, $query);
   <div class="card shadow border-0">
     <div class="card-header text-white fw-semibold d-flex align-items-center"
          style="background: linear-gradient(90deg, #ff4b2b, #ff416c); font-size: 1.1rem;">
-      <i class="fa-solid fa-list-check me-2"></i> Daftar My Work Order
+      <i class="bi bi-list-check me-2"></i> Daftar My Work Order
     </div>
 
     <div class="card-body bg-white">
@@ -72,7 +72,7 @@ $result = mysqli_query($conn, $query);
         </div>
         <div class="col-md-2 d-grid">
           <button class="btn btn-danger-gradient fw-semibold text-white" type="submit">
-            <i class="fa-solid fa-filter me-1"></i> Filter
+            <i class="bi bi-funnel-fill me-1"></i> Filter
           </button>
         </div>
       </form>
@@ -119,7 +119,7 @@ $result = mysqli_query($conn, $query);
                   <td>
                     <button type="button" class="btn btn-danger btn-sm text-white fw-semibold shadow-sm"
                             onclick="showDetail(<?= $row['id_work_order'] ?>)">
-                      <i class="fa-solid fa-eye me-1"></i> Detail
+                      <i class="bi bi-eye me-1"></i> Detail
                     </button>
                   </td>
                 </tr>

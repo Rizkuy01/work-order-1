@@ -39,7 +39,7 @@ $totalPages = ceil($totalData / $limit);
   <div class="card shadow border-0">
     <div class="card-header text-white fw-semibold"
          style="background: linear-gradient(90deg, #ff4b2b, #ff416c);">
-      <i class="fa-solid fa-clipboard-check me-2"></i> Approval Jadwal Work Order
+      <i class="bi bi-clipboard-check me-2"></i> Approval Jadwal Work Order
     </div>
 
     <div class="card-body bg-white">
@@ -86,7 +86,7 @@ $totalPages = ceil($totalData / $limit);
             <input type="hidden" name="id" value="<?= $row['id_work_order'] ?>">
             <button type="submit" name="action" value="approve"
                     class="action-btn bg-success-gradient text-white">
-              <i class="fa-solid fa-check"></i>
+              <i class="bi bi-check-lg"></i>
             </button>
             <div class="action-label text-success">Approve</div>
           </form>
@@ -96,7 +96,7 @@ $totalPages = ceil($totalData / $limit);
             <input type="hidden" name="id" value="<?= $row['id_work_order'] ?>">
             <button type="submit" name="action" value="reject"
                     class="action-btn bg-danger-gradient text-white">
-              <i class="fa-solid fa-xmark"></i>
+              <i class="bi bi-x-lg"></i>
             </button>
             <div class="action-label text-danger">Reject</div>
           </form>

@@ -172,7 +172,7 @@ $badgeStyle = match($status) {
 
             <div class="text-end mt-4">
                 <a href="../index.php" class="btn btn-secondary px-4">
-                    <i class="fa-solid fa-arrow-left me-1"></i> Kembali
+                    <i class="bi bi-arrow-left me-1"></i> Kembali
                 </a>
             </div>
         </div>

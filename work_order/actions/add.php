@@ -91,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="col-lg-8">
       <div class="card border-0 shadow-lg">
         <div class="card-header bg-danger-gradient text-white fw-semibold">
-          <i class="fa-solid fa-plus-circle me-2"></i> Tambah Data Work Order
+          <i class="bi bi-plus-circle me-2"></i> Tambah Data Work Order
         </div>
         <div class="card-body p-4">
           
@@ -184,7 +184,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="text-end">
               <button type="submit" class="btn btn-danger px-4 fw-semibold text-white">
-                <i class="fa-solid fa-save me-1"></i> Submit
+                <i class="bi bi-save me-1"></i> Submit
               </button>
             </div>
 

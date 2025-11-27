@@ -100,9 +100,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <div class="card shadow border-0">
     <div class="card-header text-white fw-semibold d-flex align-items-center justify-content-between"
          style="background: linear-gradient(90deg, #ff4b2b, #ff416c); font-size: 1.1rem;">
-      <div><i class="fa-solid fa-calendar-plus me-2"></i> Input Jadwal Work Order</div>
+      <div><i class="bi bi-calendar-plus me-2"></i> Input Jadwal Work Order</div>
       <a href="schedule.php" class="btn btn-light btn-sm fw-semibold shadow-sm">
-        <i class="fa-solid fa-arrow-left me-1"></i> Kembali
+        <i class="bi bi-arrow-left me-1"></i> Kembali
       </a>
     </div>
 
@@ -187,10 +187,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <div class="text-end">
           <button type="submit" class="btn btn-success-gradient px-4 fw-semibold me-2">
-            <i class="fa-solid fa-save me-1"></i> Jadwalkan
+            <i class="bi bi-save me-1"></i> Jadwalkan
           </button>
           <a href="schedule.php" class="btn btn-secondary px-4 fw-semibold">
-            <i class="fa-solid fa-xmark me-1"></i> Batal
+            <i class="bi bi-x-lg me-1"></i> Batal
           </a>
         </div>
 

@@ -153,12 +153,12 @@ $badgeStyle = match ($status) {
 
                 <button class="btn btn-success px-4 py-2 fw-semibold me-2"
                         onclick="approveWO(<?= $id ?>)">
-                    <i class="fa-solid fa-check me-1"></i> FINISHED
+                    <i class="bi bi-check-lg"></i> FINISHED
                 </button>
 
                 <button class="btn btn-danger px-4 py-2 fw-semibold"
                         onclick="rejectWO(<?= $id ?>)">
-                    <i class="fa-solid fa-xmark me-1"></i> REJECT
+                    <i class="bi bi-x-lg me-1"></i> REJECT
                 </button>
 
             </div>
@@ -166,7 +166,7 @@ $badgeStyle = match ($status) {
 
             <div class="text-center mt-4">
                 <a href="final_check.php" class="btn btn-secondary px-4">
-                    <i class="fa-solid fa-arrow-left me-1"></i> Kembali
+                    <i class="bi bi-arrow-left me-1"></i> Kembali
                 </a>
             </div>
 

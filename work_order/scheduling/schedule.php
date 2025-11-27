@@ -38,7 +38,7 @@ $result = mysqli_query($conn, $query);
   <div class="card shadow border-0">
     <div class="card-header text-white fw-semibold d-flex align-items-center"
          style="background: linear-gradient(90deg, #ff4b2b, #ff416c); font-size: 1.1rem;">
-      <i class="fa-solid fa-calendar-days me-2"></i> Scheduling Work Order
+      <i class="bi bi-calendar-days me-2"></i> Scheduling Work Order
     </div>
 
     <div class="card-body bg-white">
@@ -49,7 +49,7 @@ $result = mysqli_query($conn, $query);
         </div>
         <div class="col-md-2 d-grid">
           <button class="btn btn-danger-gradient fw-semibold text-white" type="submit">
-            <i class="fa-solid fa-filter me-1"></i> Filter
+            <i class="bi bi-funnel-fill me-1"></i> Filter
           </button>
         </div>
       </form>
@@ -92,7 +92,7 @@ $result = mysqli_query($conn, $query);
                   <td>
                     <a href="schedule_form.php?id=<?= $row['id_work_order'] ?>" 
                        class="btn btn-danger-gradient btn-sm fw-semibold text-white shadow-sm">
-                      <i class="fa-solid fa-calendar-plus me-1"></i> Jadwalkan
+                      <i class="bi bi-calendar-plus me-1"></i> Jadwalkan
                     </a>
                   </td>
                 </tr>
@@ -100,7 +100,7 @@ $result = mysqli_query($conn, $query);
             <?php else: ?>
               <tr>
                 <td colspan="5" class="text-muted py-4">
-                  <i class="fa-solid fa-circle-info me-2 text-secondary"></i>
+                  <i class="bi bi-circle-info me-2 text-secondary"></i>
                   Tidak ada Work Order yang menunggu penjadwalan saat ini.
                 </td>
               </tr>

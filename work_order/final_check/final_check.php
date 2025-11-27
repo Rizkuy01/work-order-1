@@ -57,7 +57,7 @@ function trimTitle($text) {
         <!-- HEADER -->
         <div class="card-header text-white fw-semibold rounded-top-4"
              style="background: linear-gradient(90deg, #ff4b2b, #ff416c); font-size: 1.2rem;">
-            <i class="fa-solid fa-check-to-slot me-2"></i> Final Checking Work Order
+            <i class="bi bi-check2-all me-2"></i> Final Checking Work Order
         </div>
 
         <div class="card-body bg-white px-4 py-4">
@@ -69,7 +69,7 @@ function trimTitle($text) {
                            placeholder="Cari nama mesin / judul WO / PIC..."
                            value="<?= htmlspecialchars($search) ?>">
                     <button class="btn btn-danger" type="submit">
-                        <i class="fa-solid fa-magnifying-glass"></i> Cari
+                        <i class="bi bi-search"></i> Cari
                     </button>
                 </div>
             </form>
@@ -102,7 +102,7 @@ function trimTitle($text) {
 
                                 <td>
                                     <a href="final_check_detail.php?id=<?= $row['id_work_order'] ?>" class="btn btn-info btn-sm text-white btn-detail">
-                                        <i class="fa-solid fa-eye me-1"></i>Detail
+                                        <i class="bi bi-eye me-1"></i>Detail
                                     </a>
                                 </td>
                             </tr>
@@ -112,7 +112,7 @@ function trimTitle($text) {
                         <tr>
                             <td colspan="4" class="py-4">
                                 <div class="empty-box">
-                                    <i class="fa-solid fa-box-open empty-icon"></i>
+                                    <i class="bi bi-box-open empty-icon"></i>
                                     <p class="empty-text">Tidak ada Work Order menunggu pengecekan.</p>
                                 </div>
                             </td>
