@@ -84,8 +84,10 @@ $totalPages = ceil($totalData / $limit);
           <!-- Approve -->
           <form method="POST" action="approval_action.php">
             <input type="hidden" name="id" value="<?= $row['id_work_order'] ?>">
-            <button type="submit" name="action" value="approve"
-                    class="action-btn bg-success-gradient text-white">
+            <input type="hidden" name="action" value="approve">
+            <button type="button"
+                    class="action-btn bg-success-gradient text-white"
+                    onclick="confirmApproval(event, 'approve', '<?= safe($row['judul_wo']) ?>')">
               <i class="bi bi-check-lg"></i>
             </button>
             <div class="action-label text-success">Approve</div>
@@ -94,8 +96,10 @@ $totalPages = ceil($totalData / $limit);
           <!-- Reject -->
           <form method="POST" action="approval_action.php">
             <input type="hidden" name="id" value="<?= $row['id_work_order'] ?>">
-            <button type="submit" name="action" value="reject"
-                    class="action-btn bg-danger-gradient text-white">
+            <input type="hidden" name="action" value="reject">
+            <button type="button"
+                    class="action-btn bg-danger-gradient text-white"
+                    onclick="confirmApproval(event, 'reject', '<?= safe($row['judul_wo']) ?>')">
               <i class="bi bi-x-lg"></i>
             </button>
             <div class="action-label text-danger">Reject</div>
@@ -211,5 +215,30 @@ $totalPages = ceil($totalData / $limit);
     background-color: #f5f5f5;
   }
 </style>
+
+<script>
+function confirmApproval(event, action, judulWO) {
+    event.preventDefault();
+
+    const actionText = action === 'approve' ? 'approve' : 'reject';
+    const actionTextCaps = actionText.toUpperCase();
+
+    Swal.fire({
+        title: `Yakin ${actionTextCaps}?`,
+        html: `Apakah anda yakin akan <b>${actionText}</b> order <b>"${judulWO}"</b> ini?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: `Ya, ${actionTextCaps}`,
+        cancelButtonText: 'Batal',
+        confirmButtonColor: action === 'approve' ? '#28a745' : '#dc3545',
+        cancelButtonColor: '#6c757d'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Submit the form
+            event.target.closest('form').submit();
+        }
+    });
+}
+</script>
 
 <?php include '../../includes/footer.php'; ?>

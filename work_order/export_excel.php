@@ -37,8 +37,8 @@ if (!empty($fromDate) && !empty($toDate)) {
   $where .= " AND DATE(tgl_input) <= '$toDate'";
 }
 
-// Ambil data dari database
-$query = "SELECT id_work_order, nama_mesin, judul_wo, tgl_input, status FROM work_order $where ORDER BY tgl_input DESC";
+// Ambil data dari database dengan semua kolom detail
+$query = "SELECT * FROM work_order $where ORDER BY tgl_input DESC";
 $result = mysqli_query($conn, $query);
 
 // Buat tabel HTML agar bisa dibuka Excel
@@ -47,6 +47,22 @@ echo "<tr style='background:#dc3545; color:#fff; text-align:center; font-weight:
         <th>ID Work Order</th>
         <th>Nama Mesin</th>
         <th>Judul WO</th>
+        <th>Detail WO</th>
+        <th>Creator</th>
+        <th>Initiator</th>
+        <th>Dept</th>
+        <th>Line</th>
+        <th>Tipe Perbaikan</th>
+        <th>Tanggal Temuan</th>
+        <th>Plan Date</th>
+        <th>Plan Time</th>
+        <th>PIC</th>
+        <th>PIC 2</th>
+        <th>Person Scheduled</th>
+        <th>Person Approved</th>
+        <th>Person Accept</th>
+        <th>Person Finish</th>
+        <th>Reject Note</th>
         <th>Tanggal Input</th>
         <th>Status</th>
       </tr>";
@@ -57,12 +73,28 @@ if (mysqli_num_rows($result) > 0) {
             <td>{$data['id_work_order']}</td>
             <td>{$data['nama_mesin']}</td>
             <td>{$data['judul_wo']}</td>
+            <td>{$data['detail_wo']}</td>
+            <td>{$data['creator']}</td>
+            <td>{$data['initiator']}</td>
+            <td>{$data['dept']}</td>
+            <td>{$data['line']}</td>
+            <td>{$data['tipe']}</td>
+            <td>" . (!empty($data['tgl_temuan']) ? date('d M Y', strtotime($data['tgl_temuan'])) : '') . "</td>
+            <td>" . (!empty($data['tgl_plan']) ? date('d M Y', strtotime($data['tgl_plan'])) : '') . "</td>
+            <td>{$data['jam_plan']}</td>
+            <td>{$data['pic']}</td>
+            <td>{$data['pic2']}</td>
+            <td>{$data['person_scheduled']}</td>
+            <td>{$data['person_approved']}</td>
+            <td>{$data['person_accept']}</td>
+            <td>{$data['person_finish']}</td>
+            <td>{$data['reject_note']}</td>
             <td>" . date('d M Y H:i', strtotime($data['tgl_input'])) . "</td>
             <td>{$data['status']}</td>
           </tr>";
   }
 } else {
-  echo "<tr><td colspan='5' align='center'>Tidak ada data untuk diekspor</td></tr>";
+  echo "<tr><td colspan='21' align='center'>Tidak ada data untuk diekspor</td></tr>";
 }
 
 echo "</table>";

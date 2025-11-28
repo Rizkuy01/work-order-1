@@ -150,7 +150,7 @@ if ($deptResult) {
   <!-- STAT CARDS -->
   <div class="row g-3 mb-4">
     <div class="col-md-3 col-lg-3">
-      <div class="card-stat grad-total text-center">
+      <div class="card-stat grad-total text-center" data-status="">
         <i class="bi bi-collection"></i>
         <h6>Total Work Order</h6>
         <h2 class="count" id="countTotal" data-target="<?= $totalWO ?>"><?= $totalWO ?></h2>
@@ -158,7 +158,7 @@ if ($deptResult) {
     </div>
 
     <div class="col-md-3 col-lg-3">
-      <div class="card-stat grad-yellow text-center">
+      <div class="card-stat grad-yellow text-center" data-status="WAITING SCHEDULE">
         <i class="bi bi-hourglass-split"></i>
         <h6>Waiting Schedule</h6>
         <h2 class="count" id="countWaiting" data-target="<?= $woWaiting ?>"><?= $woWaiting ?></h2>
@@ -166,7 +166,7 @@ if ($deptResult) {
     </div>
 
     <div class="col-md-3 col-lg-3">
-      <div class="card-stat grad-purple text-center">
+      <div class="card-stat grad-purple text-center" data-status="WAITING APPROVAL">
         <i class="bi bi-check2-square"></i>
         <h6>Waiting Approval</h6>
         <h2 class="count" id="countApproval" data-target="<?= $woApproval ?>"><?= $woApproval ?></h2>
@@ -174,7 +174,7 @@ if ($deptResult) {
     </div>
 
     <div class="col-md-3 col-lg-3">
-      <div class="card-stat grad-gray text-center">
+      <div class="card-stat grad-gray text-center" data-status="OPENED">
         <i class="bi bi-box-seam"></i>
         <h6>Opened</h6>
         <h2 class="count" id="countOpened" data-target="<?= $woOpened ?>"><?= $woOpened ?></h2>
@@ -182,7 +182,7 @@ if ($deptResult) {
     </div>
 
     <div class="col-md-3 col-lg-3">
-      <div class="card-stat grad-orange text-center">
+      <div class="card-stat grad-orange text-center" data-status="ON PROGRESS">
         <i class="bi bi-tools"></i>
         <h6>On Progress</h6>
         <h2 class="count" id="countProgress" data-target="<?= $woProgress ?>"><?= $woProgress ?></h2>
@@ -190,7 +190,7 @@ if ($deptResult) {
     </div>
 
     <div class="col-md-3 col-lg-3">
-      <div class="card-stat grad-blue text-center">
+      <div class="card-stat grad-blue text-center" data-status="WAITING CHECKED">
         <i class="bi bi-clipboard2-check"></i>
         <h6>Waiting Checked</h6>
         <h2 class="count" id="countChecked" data-target="<?= $woChecked ?>"><?= $woChecked ?></h2>
@@ -198,7 +198,7 @@ if ($deptResult) {
     </div>
 
     <div class="col-md-3 col-lg-3">
-      <div class="card-stat grad-green text-center">
+      <div class="card-stat grad-green text-center" data-status="FINISHED">
         <i class="bi bi-check-circle"></i>
         <h6>Finished</h6>
         <h2 class="count" id="countFinish" data-target="<?= $woFinish ?>"><?= $woFinish ?></h2>
@@ -206,7 +206,7 @@ if ($deptResult) {
     </div>
 
     <div class="col-md-3 col-lg-3">
-      <div class="card-stat grad-red text-center">
+      <div class="card-stat grad-red text-center" data-status="REJECTED">
         <i class="bi bi-x-circle"></i>
         <h6>Rejected</h6>
         <h2 class="count" id="countReject" data-target="<?= $woReject ?>"><?= $woReject ?></h2>
@@ -283,12 +283,16 @@ const colors = [
   '#e74c3c'
 ];
 
-// 🎨 Warna gradasi untuk bar chart
-function createGradient(ctx, area) {
-  const gradient = ctx.createLinearGradient(0, area.bottom, 0, area.top);
-  gradient.addColorStop(0, '#ff4b2b');
-  gradient.addColorStop(1, '#ff416c');
-  return gradient;
+// Function to generate distinct colors for bars
+function generateColors(count) {
+  const baseColors = [
+    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#C9CBCF', '#FF6384', '#36A2EB', '#FFCE56'
+  ];
+  const colors = [];
+  for (let i = 0; i < count; i++) {
+    colors.push(baseColors[i % baseColors.length]);
+  }
+  return colors;
 }
 
 // 🎬 Animasi fade-in sederhana untuk chart container
@@ -308,7 +312,7 @@ function createBarChart(labels, data) {
   if (barChartInstance) {
     barChartInstance.destroy();
   }
-  
+
   barChartInstance = new Chart(document.getElementById('barChart'), {
     type: 'bar',
     data: {
@@ -316,12 +320,7 @@ function createBarChart(labels, data) {
       datasets: [{
         label: 'Total Work Order',
         data: data,
-        backgroundColor: (context) => {
-          const chart = context.chart;
-          const {ctx, chartArea} = chart;
-          if (!chartArea) return null;
-          return createGradient(ctx, chartArea);
-        },
+        backgroundColor: generateColors(data.length),
         borderRadius: 6,
         barThickness: 30,
         maxBarThickness: 40
@@ -357,6 +356,16 @@ function createBarChart(labels, data) {
       animation: {
         duration: 1200,
         easing: 'easeOutQuart'
+      },
+      onClick: function(event, elements) {
+        if (elements.length > 0) {
+          const index = elements[0].index;
+          const year = labels[index];
+          const fromDate = year + '-01-01';
+          const toDate = year + '-12-31';
+          const url = 'index.php?from_date=' + encodeURIComponent(fromDate) + '&to_date=' + encodeURIComponent(toDate);
+          window.location.href = url;
+        }
       }
     }
   });
@@ -544,6 +553,19 @@ function animateCounters(duration = 1000) {
 window.addEventListener('load', function () {
   // small delay so user sees card entry animation first
   setTimeout(() => animateCounters(1400), 200);
+});
+
+// Make cards clickable to redirect to index.php with status filter
+document.addEventListener('DOMContentLoaded', function() {
+  const cardStats = document.querySelectorAll('.card-stat');
+  cardStats.forEach(card => {
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', function() {
+      const status = this.getAttribute('data-status');
+      const url = 'index.php' + (status ? '?status=' + encodeURIComponent(status) : '');
+      window.location.href = url;
+    });
+  });
 });
 </script>
 
