@@ -119,7 +119,7 @@ $result = mysqli_query($conn, $query);
                   <td>
                     <button type="button" class="btn btn-danger btn-sm text-white fw-semibold shadow-sm"
                             onclick="showDetail(<?= $row['id_work_order'] ?>)">
-                      <i class="bi bi-eye me-1"></i> Detail
+                      Detail
                     </button>
                   </td>
                 </tr>

@@ -90,6 +90,11 @@ if ($deptResult) {
     $depts[] = $row['dept'];
   }
 }
+
+/* Function trim judul */
+function trimTitle($text) {
+    return strlen($text) > 28 ? substr($text, 0, 28) . "..." : $text;
+}
 ?>
 
 <div class="container-fluid px-4 mt-4">
@@ -155,7 +160,7 @@ if ($deptResult) {
               <?php while ($row = mysqli_fetch_assoc($result)): ?>
                 <tr>
                   <td class="fw-semibold"><?= htmlspecialchars($row['nama_mesin']) ?></td>
-                  <td><?= htmlspecialchars($row['judul_wo']) ?></td>
+                  <td><?= htmlspecialchars(trimTitle($row['judul_wo'])) ?></td>
                   <td><?= date('d M Y', strtotime($row['tgl_input'])) ?></td>
                   <td>
                     <?php
