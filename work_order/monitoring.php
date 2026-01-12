@@ -26,16 +26,7 @@ $offset = ($page - 1) * $limit;
 // ====== Query dasar ======
 $where = "WHERE 1=1";
 
-// � Filter by Role - Maintenance hanya melihat WO yang ditugaskan padanya
-$role = $_SESSION['role'] ?? '';
-$nama_user = $_SESSION['nama'] ?? '';
-
-if ($role === 'Maintenance') {
-  $nama_user_escaped = mysqli_real_escape_string($conn, $nama_user);
-  $where .= " AND (pic = '$nama_user_escaped' OR pic2 = '$nama_user_escaped' OR pic3 = '$nama_user_escaped')";
-}
-
-// �🔍 Pencarian kata kunci
+// 🔍 Pencarian kata kunci
 if (!empty($search)) {
   $safeSearch = mysqli_real_escape_string($conn, $search);
   $where .= " AND (nama_mesin LIKE '%$safeSearch%' OR judul_wo LIKE '%$safeSearch%')";
@@ -44,7 +35,6 @@ if (!empty($search)) {
 // 🔍 Filter status
 if (!empty($statusFilter)) {
   $safeStatus = mysqli_real_escape_string($conn, normalizeStatus($statusFilter));
-  // Handle kedua variasi status OPENED dan OPEN
   if ($safeStatus === 'OPENED') {
     $where .= " AND (status = 'OPENED' OR status = 'OPEN')";
   } else {
@@ -104,11 +94,6 @@ if ($deptResult) {
   while ($row = mysqli_fetch_assoc($deptResult)) {
     $depts[] = $row['dept'];
   }
-}
-
-/* Function trim judul */
-function trimTitle($text) {
-    return strlen($text) > 28 ? substr($text, 0, 28) . "..." : $text;
 }
 ?>
 
@@ -175,7 +160,7 @@ function trimTitle($text) {
               <?php while ($row = mysqli_fetch_assoc($result)): ?>
                 <tr>
                   <td class="fw-semibold"><?= htmlspecialchars($row['nama_mesin']) ?></td>
-                  <td><?= htmlspecialchars(trimTitle($row['judul_wo'])) ?></td>
+                  <td><?= htmlspecialchars($row['judul_wo']) ?></td>
                   <td><?= date('d M Y', strtotime($row['tgl_input'])) ?></td>
                   <td>
                     <?php
@@ -245,7 +230,7 @@ function trimTitle($text) {
           ?>
             <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
               <a class="page-link"
-                href="?page=<?= $i ?>&search=<?= urlencode($search) ?>&status=<?= urlencode($statusFilter) ?>&dept=<?= urlencode($sectionFilter) ?>&line=<?= urlencode($lineFilter) ?>&mesin=<?= urlencode($mesinFilter) ?>&sort=<?= $sort ?>&order=<?= $order ?>">
+                href="?page=<?= $i ?>&search=<?= urlencode($search) ?>&status=<?= urlencode($statusFilter) ?>&section=<?= urlencode($sectionFilter) ?>&line=<?= urlencode($lineFilter) ?>&mesin=<?= urlencode($mesinFilter) ?>&sort=<?= $sort ?>&order=<?= $order ?>">
                 <?= $i ?>
               </a>
             </li>

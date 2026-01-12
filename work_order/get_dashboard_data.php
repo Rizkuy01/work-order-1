@@ -1,6 +1,7 @@
 <?php
 include '../includes/session_check.php';
 include '../config/database.php';
+include '../config/status_helper.php';
 
 // Ambil filter dari POST
 $dept = $_POST['dept'] ?? '';
@@ -9,6 +10,15 @@ $tipe = $_POST['tipe'] ?? '';
 
 // Build WHERE clause
 $where = "WHERE 1=1";
+
+// 🔐 Filter by Role - Maintenance hanya melihat WO yang ditugaskan padanya
+$role = $_SESSION['role'] ?? '';
+$nama_user = $_SESSION['nama'] ?? '';
+
+if ($role === 'Maintenance') {
+  $nama_user_escaped = mysqli_real_escape_string($conn, $nama_user);
+  $where .= " AND (pic = '$nama_user_escaped' OR pic2 = '$nama_user_escaped' OR pic3 = '$nama_user_escaped')";
+}
 
 if (!empty($dept)) {
     $safeDept = mysqli_real_escape_string($conn, $dept);
@@ -29,7 +39,7 @@ if (!empty($tipe)) {
 $totalWO     = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM work_order $where"))['total'] ?? 0;
 $woWaiting   = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM work_order $where AND status='WAITING SCHEDULE'"))['total'] ?? 0;
 $woApproval  = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM work_order $where AND status='WAITING APPROVAL'"))['total'] ?? 0;
-$woOpened    = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM work_order $where AND status='OPENED'"))['total'] ?? 0;
+$woOpened    = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM work_order $where AND (status='OPENED' OR status='OPEN')"))['total'] ?? 0;
 $woProgress  = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM work_order $where AND status='ON PROGRESS'"))['total'] ?? 0;
 $woChecked   = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM work_order $where AND status='WAITING CHECKED'"))['total'] ?? 0;
 $woFinish    = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM work_order $where AND status='FINISHED'"))['total'] ?? 0;

@@ -3,6 +3,7 @@ include '../../includes/session_check.php';
 include '../../includes/role_check.php';
 only(['Maintenance', 'Super Administrator']);
 include '../../config/database.php';
+include '../../config/status_helper.php';
 include '../../includes/layout.php';
 
 // Helper aman
@@ -19,14 +20,29 @@ $offset = ($page - 1) * $limit;
 $search = $_GET['search'] ?? '';
 $statusFilter = $_GET['status'] ?? '';
 
-$where = "WHERE (wo.status IN ('OPENED', 'ON PROGRESS'))";
+// 🔐 Filter by Role - Maintenance hanya melihat WO yang ditugaskan padanya
+$role = $_SESSION['role'] ?? '';
+$nama_user = $_SESSION['nama'] ?? '';
+
+$where = "WHERE (wo.status IN ('OPENED', 'OPEN', 'ON PROGRESS'))";
+
+// ✅ Jika Maintenance, filter hanya WO yang ditugaskan (PIC1, PIC2, atau PIC3)
+if ($role === 'Maintenance') {
+  $nama_user_escaped = mysqli_real_escape_string($conn, $nama_user);
+  $where .= " AND (wo.pic = '$nama_user_escaped' OR wo.pic2 = '$nama_user_escaped' OR wo.pic3 = '$nama_user_escaped')";
+}
+
 if ($search !== '') {
   $search = mysqli_real_escape_string($conn, $search);
   $where .= " AND (wo.judul_wo LIKE '%$search%' OR wo.nama_mesin LIKE '%$search%')";
 }
 if ($statusFilter !== '') {
-  $statusFilter = mysqli_real_escape_string($conn, $statusFilter);
-  $where .= " AND wo.status = '$statusFilter'";
+  $statusFilter = mysqli_real_escape_string($conn, normalizeStatus($statusFilter));
+  if ($statusFilter === 'OPENED') {
+    $where .= " AND (wo.status = 'OPENED' OR wo.status = 'OPEN')";
+  } else {
+    $where .= " AND wo.status = '$statusFilter'";
+  }
 }
 
 // --- Hitung total data ---
@@ -95,6 +111,18 @@ $result = mysqli_query($conn, $query);
               <?php while ($row = mysqli_fetch_assoc($result)) : ?>
                 <?php
                   $status = $row['status'];
+                  $hasReject = !empty($row['reject_note']); // Cek apakah ada reject
+                  
+                  // Hitung deadline H+3 jika ada reject
+                  $displayDate = $row['plan_date'];
+                  $displayTime = $row['plan_time'];
+                  if ($hasReject && !empty($row['reject_date'])) {
+                    $rejectDateTime = new DateTime($row['reject_date']);
+                    $rejectDateTime->add(new DateInterval('P3D')); // Tambah 3 hari
+                    $displayDate = $rejectDateTime->format('Y-m-d');
+                    $displayTime = '24:00'; // Atau bisa gunakan jam dari reject_date
+                  }
+                  
                   $badgeStyle = match($status) {
                     'WAITING SCHEDULE' => 'background: linear-gradient(135deg, #f1c40f, #f39c12); color:white;',
                     'WAITING APPROVAL' => 'background: linear-gradient(135deg, #e39eff, #8e44ad); color:white;',
@@ -109,11 +137,14 @@ $result = mysqli_query($conn, $query);
                 <tr>
                   <td class="fw-semibold text-start"><?= safe($row['judul_wo']) ?></td>
                   <td><?= safe($row['nama_mesin']) ?></td>
-                  <td><?= safe($row['plan_date'] ?: '-') ?></td>
-                  <td><?= safe($row['plan_time'] ?: '-') ?></td>
+                  <td><?= safe($displayDate ?: '-') ?></td>
+                  <td><?= safe($displayTime ?: '-') ?></td>
                   <td>
                     <span class="badge px-3 py-2" style="<?= $badgeStyle ?> border-radius:8px; box-shadow:0 2px 4px rgba(0,0,0,0.15);">
                       <?= strtoupper(safe($row['status'])) ?>
+                      <?php if ($hasReject): ?>
+                        <br><small style="font-size:0.7rem;">(⚠️ REJECTED)</small>
+                      <?php endif; ?>
                     </span>
                   </td>
                   <td>

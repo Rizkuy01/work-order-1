@@ -4,6 +4,7 @@ include '../../includes/role_check.php';
 only(['Supervisor', 'Super Administrator']);
 
 include '../../config/database.php';
+include '../../config/status_helper.php';
 include '../../config/upload_config.php';
 include '../../includes/layout.php';
 
@@ -20,7 +21,7 @@ if (!$data) {
 
 function safe($v) { return htmlspecialchars($v ?? '-', ENT_QUOTES, 'UTF-8'); }
 
-$status = $data['status'];
+$status = normalizeStatus($data['status']);
 
 $badgeStyle = match ($status) {
     'WAITING SCHEDULE' => 'background:linear-gradient(135deg,#f1c40f,#f39c12);color:white;',

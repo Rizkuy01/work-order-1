@@ -173,31 +173,80 @@ if (strpos($_SERVER['PHP_SELF'], '/work_order/actions/') !== false ||
       padding: 20px;
     }
 
+    .notification-dropdown .notif-item {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.notification-dropdown .notif-item:hover {
+    background: #f7f7f7;
+}
+
+.notification-dropdown .notif-title {
+    font-weight: 600;
+    color: #333;
+}
+
+.notification-dropdown .notif-time {
+    font-size: 12px;
+    color: #666;
+}
+
+
     /* === RESPONSIVE === */
-    @media (max-width: 992px) {
-      .topbar {
-        left: 0;
-      }
-      
-      .sidebar {
-        top: 0;
-        left: -240px;
-      }
-      
-      .sidebar.active {
-        left: 0;
-      }
-      
-      .main {
-        margin-left: 0;
-        margin-top: 80px;
-      }
-      .toggle-btn {
-        display: inline-block;
-        cursor: pointer;
-        margin-right: 15px;
-      }
-    }
+@media (max-width: 992px) {
+
+  /* Topbar melebar penuh */
+  .topbar {
+    left: 0 !important;
+    width: 100%;
+  }
+
+  /* Sidebar tersembunyi default */
+  .sidebar {
+    left: -240px !important;
+    transition: left 0.3s ease;
+    z-index: 3000;
+  }
+
+  /* Sidebar muncul */
+  .sidebar.active {
+    left: 0 !important;
+  }
+
+  /* Main content full width */
+  .main {
+    margin-left: 0 !important;
+    margin-top: 60px;
+    padding: 15px;
+  }
+
+  /* Tampilkan tombol toggle */
+  .toggle-btn {
+    display: inline-block !important;
+    cursor: pointer;
+    font-size: 25px;
+    margin-right: 15px;
+  }
+
+  /* Saat sidebar aktif, buat overlay */
+  body.sidebar-open::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.4);
+    z-index: 2500;
+  }
+
+  /* Dropdown profile geser ke kiri jika kecil */
+  #profileDropdown {
+    right: 10px;
+    left: auto;
+  }
+}
 
     .toggle-btn {
       display: none;
@@ -218,12 +267,28 @@ if (strpos($_SERVER['PHP_SELF'], '/work_order/actions/') !== false ||
       <span class="ms-2 fw-semibold">Work Order System</span>
     </div>
   </div>
+  
+    <div class="notification-wrapper me-4 position-relative" onclick="toggleNotificationDropdown(event)" style="cursor:pointer;">
+        <i class="bi bi-bell fs-4"></i>
+        <span id="notifBadge" class="badge bg-danger rounded-pill position-absolute top-0 start-100 translate-middle" style="font-size:12px; display:none;">
+            0
+        </span>
+
+        <!-- Dropdown Notifikasi -->
+        <div id="notifDropdown" class="notification-dropdown" style="display:none; position:absolute; right:0; top:110%; width:300px; background:#fff; border:1px solid #ddd; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.15); z-index:3000;">
+            <div id="notifList" style="max-height:300px; overflow-y:auto;">
+                <p class="text-center text-muted py-3 m-0">Memuat notifikasi...</p>
+            </div>
+        </div>
+    </div>
+    
   <div class="user-info position-relative">
     <div class="d-flex align-items-center" style="cursor: pointer;" onclick="toggleProfileDropdown(event)">
       <i class="bi bi-person-circle"></i>
-      <span><?= htmlspecialchars($nama) ?> (<?= $role ?>)</span>
+
+      <span><?= htmlspecialchars($nama) ?></span>
     </div>
-    
+
     <!-- Profile Dropdown -->
     <div id="profileDropdown" class="profile-dropdown" style="display: none;">
       <a href="#" onclick="confirmLogout(event)" class="dropdown-item">
@@ -284,5 +349,56 @@ function confirmLogout(event) {
             window.location.href = '<?= $basePath ?>auth/logout.php';
         }
     });
+}
+
+function toggleNotificationDropdown(event) {
+    event.stopPropagation();
+    const drop = document.getElementById("notifDropdown");
+    drop.style.display = (drop.style.display === "none") ? "block" : "none";
+}
+
+document.addEventListener("click", function(e) {
+    const drop = document.getElementById("notifDropdown");
+    const bell = document.querySelector(".notification-wrapper");
+
+    if (!bell.contains(e.target)) {
+        drop.style.display = "none";
+    }
+});
+
+// Load notif otomatis setiap 10 detik
+setInterval(loadNotifications, 10000);
+loadNotifications();
+
+function loadNotifications() {
+    fetch("<?= $basePath ?>work_order/notif_get.php")
+        .then(res => res.json())
+        .then(data => {
+            const badge = document.getElementById("notifBadge");
+            const list = document.getElementById("notifList");
+
+            if (data.count > 0) {
+                badge.style.display = "inline-block";
+                badge.textContent = data.count;
+            } else {
+                badge.style.display = "none";
+            }
+
+            list.innerHTML = "";
+
+            if (data.data.length === 0) {
+                list.innerHTML = `<p class="text-center text-muted py-3 m-0">Tidak ada notifikasi</p>`;
+                return;
+            }
+
+            data.data.forEach(item => {
+                list.innerHTML += `
+                    <div class="notif-item" onclick="window.location='<?= $basePath ?>work_order/actions/detail.php?id=${item.id_work_order}'">
+                        <div class="notif-title">${item.judul_wo}</div>
+                        <div class="notif-time">Status: ${item.status}</div>
+                    </div>
+                `;
+            });
+        });
 }
 </script>

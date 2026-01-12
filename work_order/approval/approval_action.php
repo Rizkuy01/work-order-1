@@ -11,6 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nama_user = mysqli_real_escape_string($conn, $_SESSION['nama']);
 
     if ($action === 'approve') {
+        // Standardisasi status ke 'OPENED' ketika approve
         $query = "UPDATE work_order SET status='OPENED', person_approved='$nama_user' WHERE id_work_order=$id";
         $msg   = "Work Order berhasil <b>APPROVED</b>";
     } else {

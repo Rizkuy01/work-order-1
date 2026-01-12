@@ -1,26 +1,35 @@
 <?php
 include '../includes/session_check_flexible.php';
 include '../config/database.php';
+include '../config/status_helper.php';
 
 $role = $_SESSION['role'];
 $nama = $_SESSION['nama'];
 $is_guest = $_SESSION['is_guest'] ?? false;
 
+// 🔐 Filter by Role - Maintenance hanya melihat WO yang ditugaskan padanya
+$where = "WHERE 1=1";
+if ($role === 'Maintenance') {
+  $nama_escaped = mysqli_real_escape_string($conn, $nama);
+  $where = "WHERE (pic = '$nama_escaped' OR pic2 = '$nama_escaped' OR pic3 = '$nama_escaped')";
+}
+
 // Statistik WO
-$totalWO         = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM work_order"))['total'] ?? 0;
-$woWaiting       = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM work_order WHERE status='WAITING SCHEDULE'"))['total'] ?? 0;
-$woApproval      = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM work_order WHERE status='WAITING APPROVAL'"))['total'] ?? 0;
-$woOpened        = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM work_order WHERE status='OPENED'"))['total'] ?? 0;
-$woProgress      = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM work_order WHERE status='ON PROGRESS'"))['total'] ?? 0;
-$woChecked       = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM work_order WHERE status='WAITING CHECKED'"))['total'] ?? 0;
-$woFinish        = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM work_order WHERE status='FINISHED'"))['total'] ?? 0;
-$woReject        = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM work_order WHERE status='REJECTED'"))['total'] ?? 0;
+$totalWO         = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM work_order $where"))['total'] ?? 0;
+$woWaiting       = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM work_order $where AND status='WAITING SCHEDULE'"))['total'] ?? 0;
+$woApproval      = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM work_order $where AND status='WAITING APPROVAL'"))['total'] ?? 0;
+$woOpened        = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM work_order $where AND (status='OPENED' OR status='OPEN')"))['total'] ?? 0;
+$woProgress      = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM work_order $where AND status='ON PROGRESS'"))['total'] ?? 0;
+$woChecked       = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM work_order $where AND status='WAITING CHECKED'"))['total'] ?? 0;
+$woFinish        = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM work_order $where AND status='FINISHED'"))['total'] ?? 0;
+$woReject        = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM work_order $where AND status='REJECTED'"))['total'] ?? 0;
 
 // Data untuk Bar Chart - Total WO per Tahun
 $yearData = [];
 $result = mysqli_query($conn, "
   SELECT YEAR(tgl_input) AS tahun, COUNT(*) AS total
   FROM work_order
+  $where
   GROUP BY YEAR(tgl_input)
   ORDER BY tahun ASC
 ");
@@ -32,7 +41,8 @@ $totals = array_column($yearData, 'total');
 
 // Ambil daftar departement dari database
 $depts = [];
-$deptResult = mysqli_query($conn, "SELECT DISTINCT dept FROM work_order WHERE dept IS NOT NULL AND dept != '' ORDER BY dept ASC");
+$dept_where = $where . " AND dept IS NOT NULL AND dept != ''";
+$deptResult = mysqli_query($conn, "SELECT DISTINCT dept FROM work_order $dept_where ORDER BY dept ASC");
 if ($deptResult) {
   while ($row = mysqli_fetch_assoc($deptResult)) {
     $depts[] = $row['dept'];
@@ -378,42 +388,41 @@ function createPieChart(labels, data) {
   }
   
   pieChartInstance = new Chart(document.getElementById('pieChart'), {
-    type: 'bar',
+    type: 'pie',
     data: {
       labels: labels,
       datasets: [{
         label: 'Jumlah Work Order',
         data: data,
         backgroundColor: colors,
-        borderRadius: 6,
-        barThickness: 35,
-        maxBarThickness: 45
+        borderColor: '#fff',
+        borderWidth: 2
       }]
     },
     options: {
-      indexAxis: 'x',
       layout: { padding: { top: 10, right: 10, bottom: 10, left: 10 } },
       plugins: {
-        legend: { display: false },
+        legend: { 
+          display: true,
+          position: 'right',
+          labels: {
+            font: { size: 11 },
+            padding: 15,
+            usePointStyle: true
+          }
+        },
         tooltip: {
           backgroundColor: '#2c3e50',
           titleFont: { weight: 'bold' },
-          cornerRadius: 8
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          grid: { color: '#ececec' },
-          ticks: { font: { size: 12 } },
-          suggestedMax: Math.max(...data, 0) * 1.1
-        },
-        x: {
-          grid: { display: false },
-          ticks: {
-            font: { size: 12 },
-            maxRotation: 45,
-            minRotation: 0
+          cornerRadius: 8,
+          callbacks: {
+            label: function(context) {
+              const label = context.label || '';
+              const value = context.parsed || 0;
+              const total = context.dataset.data.reduce((a, b) => a + b, 0);
+              const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+              return label + ': ' + value + ' (' + percentage + '%)';
+            }
           }
         }
       },

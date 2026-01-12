@@ -31,12 +31,13 @@ if ($action === 'approve') {
 
     $query = "
         UPDATE work_order 
-        SET status = 'REJECTED',
-            reject_note = '$note'
+        SET status = 'OPENED',
+            reject_note = '$note',
+            reject_date = NOW()
         WHERE id_work_order = $id
     ";
 
-    $msg = "Work Order telah <b>DITOLAK</b> dengan alasan:<br>$note";
+    $msg = "Work Order telah <b>DITOLAK</b> dan status dikembalikan ke <b>OPENED</b> untuk dikerjakan ulang.<br>Alasan: $note";
 
 } else {
 

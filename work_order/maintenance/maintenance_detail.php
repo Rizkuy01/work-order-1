@@ -1,5 +1,6 @@
 <?php
 include '../../config/database.php';
+include '../../config/status_helper.php';
 
 $id = $_GET['id'] ?? 0;
 $query = "
@@ -18,7 +19,7 @@ if (!$row) {
 
 function safe($v) { return htmlspecialchars($v ?? '-', ENT_QUOTES, 'UTF-8'); }
 
-$status = $row['status'] ?? $row['status_show'] ?? '-';
+$status = normalizeStatus($row['status'] ?? $row['status_show'] ?? '-');
 $badgeStyle = match($status) {
   'WAITING SCHEDULE' => 'background: linear-gradient(135deg, #f1c40f, #f39c12); color:white;',
   'WAITING APPROVAL' => 'background: linear-gradient(135deg, #e39eff, #8e44ad); color:white;',
@@ -70,11 +71,11 @@ $badgeStyle = match($status) {
 
   <hr class="my-3">
 
-  <?php if (in_array($row['status'], ['OPENED', 'ON PROGRESS'])): ?>
+  <?php if (in_array($status, ['OPENED', 'ON PROGRESS'])): ?>
   <div class="text-end">
     <form method="POST" action="maintenance_action.php" class="d-inline">
       <input type="hidden" name="id" value="<?= $row['id_work_order'] ?>">
-      <?php if ($row['status'] == 'OPENED'): ?>
+      <?php if ($status == 'OPENED'): ?>
         <button type="button" class="btn btn-warning text-white fw-semibold" onclick="startWO(<?= $row['id_work_order'] ?>)">
             <i class="bi bi-play-fill me-1"></i> Mulai
         </button>
