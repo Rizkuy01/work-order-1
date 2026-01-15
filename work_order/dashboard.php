@@ -65,15 +65,34 @@ if ($deptResult) {
 
     .card-stat {
       border: none;
-      border-radius: 12px;
+      border-radius: 10px;
       color: white;
-      padding: 22px 20px;
+      padding: 12px 10px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.15);
       position: relative;
       overflow: hidden;
       transition: all 0.3s ease;
     }
-    .card-stat:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(0,0,0,0.2); }
+    .card-stat:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,0.2); }
+
+    .card-stat h6 {
+      font-size: 0.75rem;
+      margin: 0;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .card-stat h2 {
+      font-size: 1.8rem;
+      margin: 6px 0 0 0;
+      font-weight: bold;
+    }
+
+    .card-stat i {
+      font-size: 22px;
+      opacity: 0.2;
+    }
 
     /* Gradient warna */
     .grad-total { background: linear-gradient(135deg, #567890ff, #023556ff); }
@@ -111,15 +130,15 @@ if ($deptResult) {
 </head>
 <body>
 
-<div class="container-fluid mt-4">
-  <h4 class="fw-semibold mb-3">👋 Selamat datang, <?= htmlspecialchars($nama) ?>!</h4>
-  <p class="text-muted mb-4">Berikut ringkasan aktivitas Work Order Anda di sistem.</p>
+<div class="container-fluid mt-2 px-3">
+  <h5 class="fw-semibold mb-2" style="font-size: 1.1rem;">👋 Selamat datang, <?= htmlspecialchars($nama) ?>!</h5>
+  <p class="text-muted mb-2" style="font-size: 0.9rem;">Berikut ringkasan aktivitas Work Order Anda di sistem.</p>
 
   <!-- FILTER SECTION -->
-  <div class="row g-2 mb-4">
+  <div class="row g-1 mb-2">
     <div class="col-md-3">
-      <label class="form-label fw-semibold text-sm">Departement</label>
-      <select id="filterDashDept" class="form-select">
+      <label class="form-label fw-semibold text-sm" style="font-size: 0.8rem;">Departement</label>
+      <select id="filterDashDept" class="form-select form-select-sm">
         <option value="">Semua Departement</option>
         <?php 
         foreach ($depts as $dept_name):
@@ -130,15 +149,15 @@ if ($deptResult) {
     </div>
 
     <div class="col-md-3">
-      <label class="form-label fw-semibold text-sm">Line</label>
-      <select id="filterDashLine" class="form-select">
+      <label class="form-label fw-semibold text-sm" style="font-size: 0.8rem;">Line</label>
+      <select id="filterDashLine" class="form-select form-select-sm">
         <option value="">Semua Line</option>
       </select>
     </div>
 
     <div class="col-md-3">
-      <label class="form-label fw-semibold text-sm">Tipe Perbaikan</label>
-      <select id="filterDashTipe" class="form-select">
+      <label class="form-label fw-semibold text-sm" style="font-size: 0.8rem;">Tipe Perbaikan</label>
+      <select id="filterDashTipe" class="form-select form-select-sm">
         <option value="">Semua Tipe</option>
         <option value="Repair">Repair</option>
         <option value="Improve">Improve</option>
@@ -157,9 +176,9 @@ if ($deptResult) {
     </div>
   </div>
 
-  <!-- STAT CARDS -->
-  <div class="row g-3 mb-4">
-    <div class="col-md-3 col-lg-3">
+  <!-- STAT CARDS - Diubah menjadi 4 per baris untuk lebih compact -->
+  <div class="row g-2 mb-4">
+    <div class="col-md-6 col-lg-3">
       <div class="card-stat grad-total text-center" data-status="">
         <i class="bi bi-collection"></i>
         <h6>Total Work Order</h6>
@@ -167,7 +186,7 @@ if ($deptResult) {
       </div>
     </div>
 
-    <div class="col-md-3 col-lg-3">
+    <div class="col-md-6 col-lg-3">
       <div class="card-stat grad-yellow text-center" data-status="WAITING SCHEDULE">
         <i class="bi bi-hourglass-split"></i>
         <h6>Waiting Schedule</h6>
@@ -175,7 +194,7 @@ if ($deptResult) {
       </div>
     </div>
 
-    <div class="col-md-3 col-lg-3">
+    <div class="col-md-6 col-lg-3">
       <div class="card-stat grad-purple text-center" data-status="WAITING APPROVAL">
         <i class="bi bi-check2-square"></i>
         <h6>Waiting Approval</h6>
@@ -183,7 +202,7 @@ if ($deptResult) {
       </div>
     </div>
 
-    <div class="col-md-3 col-lg-3">
+    <div class="col-md-6 col-lg-3">
       <div class="card-stat grad-gray text-center" data-status="OPENED">
         <i class="bi bi-box-seam"></i>
         <h6>Opened</h6>
@@ -191,7 +210,7 @@ if ($deptResult) {
       </div>
     </div>
 
-    <div class="col-md-3 col-lg-3">
+    <div class="col-md-6 col-lg-3">
       <div class="card-stat grad-orange text-center" data-status="ON PROGRESS">
         <i class="bi bi-tools"></i>
         <h6>On Progress</h6>
@@ -199,7 +218,7 @@ if ($deptResult) {
       </div>
     </div>
 
-    <div class="col-md-3 col-lg-3">
+    <div class="col-md-6 col-lg-3">
       <div class="card-stat grad-blue text-center" data-status="WAITING CHECKED">
         <i class="bi bi-clipboard2-check"></i>
         <h6>Waiting Checked</h6>
@@ -207,7 +226,7 @@ if ($deptResult) {
       </div>
     </div>
 
-    <div class="col-md-3 col-lg-3">
+    <div class="col-md-6 col-lg-3">
       <div class="card-stat grad-green text-center" data-status="FINISHED">
         <i class="bi bi-check-circle"></i>
         <h6>Finished</h6>
@@ -215,7 +234,7 @@ if ($deptResult) {
       </div>
     </div>
 
-    <div class="col-md-3 col-lg-3">
+    <div class="col-md-6 col-lg-3">
       <div class="card-stat grad-red text-center" data-status="REJECTED">
         <i class="bi bi-x-circle"></i>
         <h6>Rejected</h6>

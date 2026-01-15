@@ -36,15 +36,17 @@ elseif ($role === "Foreman") {
 }
 
 // =============================
-// 3️⃣ Maintenance (pembuat WO)
+// 3️⃣ Maintenance (WO yang di-assign kepadanya)
 // =============================
 elseif ($role === "Maintenance") {
     $query = "
         SELECT * FROM work_order
         WHERE (status='OPENED' OR status='OPEN'
+            OR status='SCHEDULED'
+            OR status='IN PROGRESS'
             OR status='FINISHED'
             OR status='REJECTED')
-        AND creator = '$nama'
+        AND (pic = '$nama' OR pic2 = '$nama' OR pic3 = '$nama')
         ORDER BY tgl_input DESC
         LIMIT 10
     ";

@@ -49,6 +49,25 @@ if ($statusFilter !== '') {
 $totalData = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM work_order wo $where"))['total'];
 $totalPages = ceil($totalData / $limit);
 
+// --- Query untuk WO yang dijadwalkan hari ini ---
+$today = date('Y-m-d');
+$todayWOQuery = "
+  SELECT wo.*, ws.plan_date, ws.plan_time, ws.pic
+  FROM work_order wo
+  LEFT JOIN wo_schedule ws ON wo.id_work_order = ws.id_work_order
+  WHERE ws.plan_date = '$today'
+  AND (wo.status IN ('OPENED', 'OPEN', 'ON PROGRESS'))
+";
+
+// ✅ Jika Maintenance, filter hanya WO yang ditugaskan
+if ($role === 'Maintenance') {
+  $nama_user_escaped = mysqli_real_escape_string($conn, $nama_user);
+  $todayWOQuery .= " AND (wo.pic = '$nama_user_escaped' OR wo.pic2 = '$nama_user_escaped' OR wo.pic3 = '$nama_user_escaped')";
+}
+
+$todayWOQuery .= " ORDER BY ws.plan_time ASC";
+$todayWOResult = mysqli_query($conn, $todayWOQuery);
+
 // --- Query utama ---
 $query = "
   SELECT wo.*, ws.plan_date, ws.plan_time, ws.pic
@@ -63,7 +82,67 @@ $result = mysqli_query($conn, $query);
 
 <div class="container-fluid px-4 py-3">
 
-  <!-- 🔴 HEADER + FILTER + TABLE DALAM SATU CARD -->
+  <!-- � ALERT SECTION - WO Dijadwalkan Hari Ini -->
+  <?php if (mysqli_num_rows($todayWOResult) > 0): ?>
+    <div class="alert alert-warning alert-dismissible fade show border-0 shadow-sm mb-4" role="alert" 
+         style="background: linear-gradient(135deg, #fff3cd, #ffe082); border-left: 5px solid #ffc107;">
+      <div class="d-flex align-items-center mb-3">
+        <i class="bi bi-exclamation-triangle-fill me-3" style="font-size: 1.5rem; color: #ff9800;"></i>
+        <h5 class="mb-0" style="color: #333;">Jadwal Perbaikan Hari Ini</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      
+      <div class="row g-3">
+        <?php while ($todayWO = mysqli_fetch_assoc($todayWOResult)): ?>
+          <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm" style="border-left: 4px solid #ff9800; border-radius: 8px;">
+              <div class="card-body p-3">
+                <h6 class="card-title fw-bold text-dark mb-2" style="font-size: 1rem; min-height: 2.5rem;">
+                  <?= safe($todayWO['judul_wo']) ?>
+                </h6>
+                
+                <div class="mb-2">
+                  <small class="text-muted d-block">
+                    <i class="bi bi-diagram-2 me-2" style="color: #ff9800;"></i><strong>Line:</strong>
+                  </small>
+                  <p class="mb-2 ms-3" style="color: #333;">
+                    <?= safe($todayWO['line'] ?? '-') ?>
+                  </p>
+                </div>
+
+                <div class="mb-2">
+                  <small class="text-muted d-block">
+                    <i class="bi bi-gear me-2" style="color: #ff9800;"></i><strong>Mesin:</strong>
+                  </small>
+                  <p class="mb-2 ms-3" style="color: #333;">
+                    <?= safe($todayWO['nama_mesin'] ?? '-') ?>
+                  </p>
+                </div>
+
+                <div class="mb-2">
+                  <small class="text-muted d-block">
+                    <i class="bi bi-tools me-2" style="color: #ff9800;"></i><strong>Tipe:</strong>
+                  </small>
+                  <p class="mb-2 ms-3" style="color: #333;">
+                    <?= safe($todayWO['jenis_perbaikan'] ?? '-') ?>
+                  </p>
+                </div>
+
+                <div class="d-flex align-items-center border-top pt-2">
+                  <i class="bi bi-clock me-2" style="color: #ff9800; font-size: 1.1rem;"></i>
+                  <strong style="color: #ff9800; font-size: 1.1rem;">
+                    <?= safe($todayWO['plan_time'] ?? '-') ?>
+                  </strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        <?php endwhile; ?>
+      </div>
+    </div>
+  <?php endif; ?>
+
+  <!-- �🔴 HEADER + FILTER + TABLE DALAM SATU CARD -->
   <div class="card shadow border-0">
     <div class="card-header text-white fw-semibold d-flex align-items-center"
          style="background: linear-gradient(90deg, #ff4b2b, #ff416c); font-size: 1.1rem;">
@@ -86,9 +165,12 @@ $result = mysqli_query($conn, $query);
             <option value="FINISHED" <?= ($statusFilter == 'FINISHED') ? 'selected' : '' ?>>Finished</option>
           </select>
         </div>
-        <div class="col-md-2 d-grid">
-          <button class="btn btn-danger-gradient fw-semibold text-white" type="submit">
+        <div class="col-md-2 d-flex gap-2">
+          <button class="btn btn-danger-gradient fw-semibold text-white flex-grow-1" type="submit">
             <i class="bi bi-funnel-fill me-1"></i> Filter
+          </button>
+          <button class="btn btn-info fw-semibold text-white" type="button" onclick="printDailySchedule()">
+            <i class="bi bi-printer me-1"></i> Print
           </button>
         </div>
       </form>
@@ -123,6 +205,16 @@ $result = mysqli_query($conn, $query);
                     $displayTime = '24:00'; // Atau bisa gunakan jam dari reject_date
                   }
                   
+                  // 🚨 Cek apakah pekerjaan sudah terlewat deadline (overdue)
+                  $isOverdue = false;
+                  $today = new DateTime(date('Y-m-d'));
+                  if (!empty($displayDate) && in_array($status, ['OPENED', 'OPEN', 'ON PROGRESS'])) {
+                    $planDateTime = new DateTime($displayDate);
+                    if ($planDateTime < $today) {
+                      $isOverdue = true;
+                    }
+                  }
+                  
                   $badgeStyle = match($status) {
                     'WAITING SCHEDULE' => 'background: linear-gradient(135deg, #f1c40f, #f39c12); color:white;',
                     'WAITING APPROVAL' => 'background: linear-gradient(135deg, #e39eff, #8e44ad); color:white;',
@@ -140,12 +232,24 @@ $result = mysqli_query($conn, $query);
                   <td><?= safe($displayDate ?: '-') ?></td>
                   <td><?= safe($displayTime ?: '-') ?></td>
                   <td>
-                    <span class="badge px-3 py-2" style="<?= $badgeStyle ?> border-radius:8px; box-shadow:0 2px 4px rgba(0,0,0,0.15);">
-                      <?= strtoupper(safe($row['status'])) ?>
-                      <?php if ($hasReject): ?>
-                        <br><small style="font-size:0.7rem;">(⚠️ REJECTED)</small>
+                    <div class="position-relative d-inline-block">
+                      <span class="badge px-3 py-2 <?php echo $isOverdue ? 'badge-overdue' : ''; ?>" 
+                            style="<?= $badgeStyle ?> border-radius:8px; box-shadow:0 2px 4px rgba(0,0,0,0.15);">
+                        <?= strtoupper(safe($row['status'])) ?>
+                        <?php if ($hasReject): ?>
+                          <br><small style="font-size:0.7rem;">(⚠️ REJECTED)</small>
+                        <?php endif; ?>
+                        <?php if ($isOverdue): ?>
+                          <br><small style="font-size:0.7rem; font-weight: bold;">⏰ OVERDUE</small>
+                        <?php endif; ?>
+                      </span>
+                      <?php if ($isOverdue): ?>
+                        <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle" 
+                              style="animation: pulse-overdue 2s infinite;" title="Jadwal sudah terlewat">
+                          <span class="visually-hidden">Overdue</span>
+                        </span>
                       <?php endif; ?>
-                    </span>
+                    </div>
                   </td>
                   <td>
                     <button type="button" class="btn btn-danger btn-sm text-white fw-semibold shadow-sm"
@@ -216,6 +320,24 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   };
+
+  window.printDailySchedule = function() {
+    // Get current filter values
+    const search = new URLSearchParams(window.location.search).get('search') || '';
+    const status = new URLSearchParams(window.location.search).get('status') || '';
+    
+    // Open print window
+    const printWindow = window.open('print_maintenance.php?search=' + encodeURIComponent(search) + '&status=' + encodeURIComponent(status), 'PrintWindow', 'width=1000,height=800');
+    
+    // Print after window loads
+    if (printWindow) {
+      printWindow.addEventListener('load', function() {
+        setTimeout(() => {
+          printWindow.print();
+        }, 500);
+      });
+    }
+  };
 });
 </script>
 
@@ -246,6 +368,65 @@ document.addEventListener("DOMContentLoaded", function () {
   .pagination .page-item.disabled .page-link {
     color: #aaa;
     background-color: #f5f5f5;
+  }
+
+  /* Styling untuk Alert Card */
+  .alert.alert-warning {
+    box-shadow: 0 2px 8px rgba(255, 152, 0, 0.15);
+  }
+
+  .alert .card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background: #fff;
+  }
+
+  .alert .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 152, 0, 0.2) !important;
+  }
+
+  .alert .card-body small {
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+  }
+
+  .alert .card-body p {
+    font-size: 0.95rem;
+    margin-bottom: 0;
+    font-weight: 500;
+  }
+
+  .alert .card-body .border-top {
+    border-color: #ffe0b2 !important;
+  }
+
+  /* 🚨 Overdue Badge Animation */
+  @keyframes pulse-overdue {
+    0%, 100% {
+      opacity: 1;
+      box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+    }
+    50% {
+      box-shadow: 0 0 0 8px rgba(220, 53, 69, 0);
+    }
+  }
+
+  .badge-overdue {
+    border: 2px solid #dc3545 !important;
+    box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.2) !important;
+  }
+
+  .badge-overdue small:last-child {
+    display: block;
+    margin-top: 3px;
+    color: #fff;
+    font-weight: bold;
+    animation: blink 1.5s infinite;
+  }
+
+  @keyframes blink {
+    0%, 50%, 100% { opacity: 1; }
+    25%, 75% { opacity: 0.5; }
   }
 </style>
 
