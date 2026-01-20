@@ -1,6 +1,7 @@
 <?php
 include '../../config/database.php';
 include '../../config/status_helper.php';
+include '../../config/upload_config.php';
 
 $id = $_GET['id'] ?? 0;
 $query = "
@@ -67,6 +68,24 @@ $badgeStyle = match($status) {
       <div class="info-item"><strong>Dibuat Oleh</strong><span><?= safe($row['creator']) ?></span></div>
       <div class="info-item"><strong>Initiator</strong><span><?= safe($row['initiator']) ?></span></div>
     </div>
+  </div>
+
+  <hr class="my-3">
+
+  <!-- FOTO BEFORE -->
+  <div class="mb-3">
+    <h6 class="fw-bold text-info mb-2" style="font-size: 13px;">
+      <i class="bi bi-image me-2"></i>FOTO BEFORE
+    </h6>
+    <?php if (!empty($row['fotobefore'])): ?>
+      <img src="<?= UPLOADS_BEFORE_URL ?><?= safe($row['fotobefore']) ?>"
+          class="img-fluid rounded shadow"
+          style="max-width: 100%; height: auto; max-height: 300px; object-fit: cover;">
+    <?php else: ?>
+      <div class="alert alert-warning mb-0" style="font-size: 13px;">
+        <i class="bi bi-exclamation-circle me-2"></i>User tidak input foto before
+      </div>
+    <?php endif; ?>
   </div>
 
   <hr class="my-3">

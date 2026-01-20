@@ -84,7 +84,10 @@ function formatTanggalIndo($date) {
 
 $today = date('Y-m-d');
 $currentUser = $_SESSION['nama'] ?? 'User';
-$printDate = date('d M Y H:i');
+
+// Set timezone to WIB (UTC+7)
+date_default_timezone_set('Asia/Jakarta');
+$printDate = date('d M Y H:i \W\I\B');
 ?>
 
 <!DOCTYPE html>
@@ -293,7 +296,6 @@ $printDate = date('d M Y H:i');
     <!-- Header -->
     <div class="print-header">
       <h1>📋 LAPORAN JADWAL WORK ORDER</h1>
-      <p>Sistem Manajemen Perbaikan & Pemeliharaan</p>
       <div class="print-info">
         <div>User: <strong><?= safe($currentUser) ?></strong></div>
         <div>Tanggal Cetak: <strong><?= $printDate ?></strong></div>
